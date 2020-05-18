@@ -78,22 +78,16 @@ void fourWaySetTransmit() {
 }
 
 void fourWayPutAck() {
-  fourWaySetTransmit();
   fourWayPutChar(0x30); // good ack!
-  fourWaySetReceive();
 }
 
 void fourWayPutNack() {
-  fourWaySetTransmit();
   fourWayPutChar(0xC1); // bad command message.
-  fourWaySetReceive();
 }
 
 void fourWayPutDeviceInfo() {
-  fourWaySetTransmit();
   fourWayPutBuffer(deviceInfo,sizeof(deviceInfo));
   fourWayPutAck();
-  fourWaySetReceive();
 }
 
 
@@ -192,7 +186,6 @@ void decodeInput() {
     }
 
     if (checkCrc((uint8_t*)rxBuffer,cmdLength)) {
-      fourWaySetTransmit();
       uint8_t dataBuffer[dataBufferSize + 3];        // make buffer 3 larger to fit CRC and ACK
       memset(dataBuffer, 0, sizeof(dataBuffer));
       bootloaderFlashRead((uint8_t*)dataBuffer , cmdAddress, dataBufferSize);
@@ -201,19 +194,17 @@ void decodeInput() {
       dataBuffer[dataBufferSize + 1] = CRC_16.bytes[1];
       dataBuffer[dataBufferSize + 2] = 0x30;
       fourWayPutBuffer(dataBuffer, dataBufferSize+3);
-      fourWaySetReceive();
       return;
     }
   }
 
-  fourWaySetTransmit();
-  fourWayPutChar(0xC1); // bad command message.
   cmdInvalid++;
-  fourWaySetReceive();
+  fourWayPutChar(0xC1); // bad command message.
 }
 
 
 void fourWayGetChar() {
+  fourWaySetReceive();
   rxByte=0;
 
   while(!(INPUT_GPIO->IDR & INPUT_PIN)) {
@@ -243,6 +234,7 @@ void fourWayGetChar() {
 
 
 void fourWayPutChar(char data) {
+  fourWaySetTransmit();
   LED_OFF(LED_RED);
   LED_ON(LED_BLUE);
   INPUT_GPIO->BRR = INPUT_PIN;; // initiate start bit
@@ -261,6 +253,7 @@ void fourWayPutChar(char data) {
   delayMicroseconds(BITTIME);
   INPUT_GPIO->BSRR = INPUT_PIN; // write the stop bit
   LED_OFF(LED_BLUE);
+  fourWaySetReceive();
 }
 
 void fourWayPutBuffer(uint8_t *data, int cmdLength) {
@@ -301,10 +294,6 @@ int main(void) {
   ledInit();
   systemTim2Init();
   ledOff();
-
-  LL_TIM_EnableCounter(TIM2);
-
-  fourWaySetReceive();
 
   while (true) {
     fourWayGetBuffer();
