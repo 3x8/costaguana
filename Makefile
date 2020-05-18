@@ -79,9 +79,9 @@ include $(ROOT)/make/targets.mk
 
 REVISION := $(shell git log -1 --format="%h")
 
-FW_VER_MAJOR := $(shell grep " FW_VERSION_MAJOR" src/main/build/version.h | awk '{print $$3}' )
-FW_VER_MINOR := $(shell grep " FW_VERSION_MINOR" src/main/build/version.h | awk '{print $$3}' )
-FW_VER_PATCH := $(shell grep " FW_VERSION_PATCH" src/main/build/version.h | awk '{print $$3}' )
+FW_VER_MAJOR := $(shell grep " FW_VERSION_MAJOR" src/main/version/version.h | awk '{print $$3}' )
+FW_VER_MINOR := $(shell grep " FW_VERSION_MINOR" src/main/version/version.h | awk '{print $$3}' )
+FW_VER_PATCH := $(shell grep " FW_VERSION_PATCH" src/main/version/version.h | awk '{print $$3}' )
 
 FW_VER := $(FW_VER_MAJOR).$(FW_VER_MINOR).$(FW_VER_PATCH)
 

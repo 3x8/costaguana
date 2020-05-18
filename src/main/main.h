@@ -17,15 +17,16 @@
 #include "stm32f0xx_ll_gpio.h"
 
 #include "target.h"
-#include "build/version.h"
+#include "version/version.h"
 #include "bootloader/bootloader.h"
+#include "system/system.h"
 
 #define FLASH_FKEY1 ((uint32_t)0x45670123)
 #define FLASH_FKEY2 ((uint32_t)0xCDEF89AB)
 
-#define BAUDRATE 19200
-#define BITTIME 1000000/BAUDRATE
-#define HALFBITTIME 500000/BAUDRATE
+#define BAUDRATE  19200
+#define BITTIME (1000000/BAUDRATE)
+#define HALFBITTIME (500000/BAUDRATE)
 #define SHIFT_AMOUNT 2
 
 #define APPLICATION_ADDRESS (uint32_t)0x08001000               // 4k
@@ -45,10 +46,3 @@
 #define CMD_KEEP_ALIVE        0xFD
 #define CMD_SET_ADDRESS       0xFF
 #define CMD_SET_BUFFER        0xFE
-
-
-typedef void (*pFunction)(void);
-
-void systemClockConfig(void);
-void systemGpioInit(void);
-void systemTim2Init(void);
