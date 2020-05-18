@@ -30,7 +30,7 @@ char incoming_payload_no_command = 0;
 
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_TIM2_Init(void);
+static void systemTim2Init(void);
 
 void processmessage(void);
 void serialwriteChar(char data);
@@ -322,7 +322,7 @@ int main(void) {
   SystemClock_Config();
 
   MX_GPIO_Init();
-  MX_TIM2_Init();
+  systemTim2Init();
 
   LL_TIM_EnableCounter(TIM2);
 
@@ -367,7 +367,7 @@ void SystemClock_Config(void) {
 }
 
 
-static void MX_TIM2_Init(void) {
+static void systemTim2Init(void) {
   LL_TIM_InitTypeDef TIM_InitStruct = {0};
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2);
 
