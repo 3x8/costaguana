@@ -279,7 +279,6 @@ void fourWayGetBuffer(){
   for(int i = 0; i < sizeof(rxBuffer); i++){
     fourWayGetChar();
     if(TIM2->CNT >=250) {
-
       break;
     }else{
       rxBuffer[i] = rxByte;
