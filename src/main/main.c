@@ -32,6 +32,7 @@ void jump() {
   JumpAddress = *(__IO uint32_t*) (APPLICATION_ADDRESS + 4);
   uint8_t value = *(uint8_t*)(EEPROM_ADDRESS);
 
+  //ToDo
   // check first byte of eeprom to see if its programmed, if not do not jump
   if (value != 0x01) {
     cmdInvalid = 0;
