@@ -156,9 +156,11 @@ void decodeInput() {
   if(rxBuffer[0] == CMD_KEEP_ALIVE) {
     cmdLength = 2;
     if(checkCrc((uint8_t*)rxBuffer,cmdLength)){
+      fourWayPutAck();
+      /*
       fourWaySetTransmit();
       fourWayPutChar(0xC1); // bad command message.
-      fourWaySetReceive();
+      fourWaySetReceive();*/
     }
     return;
   }
