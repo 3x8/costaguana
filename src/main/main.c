@@ -241,6 +241,7 @@ void fourWayGetChar() {
 
 
 void fourWayPutChar(char data) {
+  LED_OFF(LED_RED);
   LED_ON(LED_BLUE);
   INPUT_GPIO->BRR = INPUT_PIN;; // initiate start bit
   char bits_to_read = 0;
@@ -307,6 +308,7 @@ int main(void) {
   while (true) {
     fourWayGetBuffer();
     if (cmdInvalid > 100) {
+      LED_ON(LED_RED);
       jump();
     }
   }
