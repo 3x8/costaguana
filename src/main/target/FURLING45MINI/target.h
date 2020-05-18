@@ -2,4 +2,4 @@
 
 // input ,Ok
 #define INPUT_GPIO      GPIOB
-#define INPUT_PIN       GPIO_PIN_4
+#define INPUT_PIN       LL_GPIO_PIN_4
