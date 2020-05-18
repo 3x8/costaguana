@@ -28,7 +28,7 @@ uint16_t payload_buffer_size;
 char incoming_payload_no_command = 0;
 
 
-void SystemClock_Config(void);
+void systemClockConfig(void);
 static void systemGpioInit(void);
 static void systemTim2Init(void);
 
@@ -319,7 +319,7 @@ int main(void) {
 
   FLASH->ACR |= FLASH_ACR_PRFTBE;   //// prefetch buffer enable
 
-  SystemClock_Config();
+  systemClockConfig();
 
   systemGpioInit();
   systemTim2Init();
@@ -337,7 +337,7 @@ int main(void) {
 }
 
 
-void SystemClock_Config(void) {
+void systemClockConfig(void) {
   LL_FLASH_SetLatency(LL_FLASH_LATENCY_1);
   while(LL_FLASH_GetLatency() != LL_FLASH_LATENCY_1){
     // wait
