@@ -11,19 +11,10 @@ uint8_t payloadBuffer[256];
 uint16_t payloadSize;
 bool payloadIncoming = false;
 bool fourWayCharReceived = false;
-
 static uint8_16_u CRC_16;
-
 uint32_t cmdAddress;
 uint16_t cmdInvalid = 0;
-
-
-uint16_t len;
-
-uint8_t calculated_crc_low_byte;
-uint8_t calculated_crc_high_byte;
-
-
+uint16_t cmdLength;
 
 
 void delayMicroseconds(uint32_t micros){
@@ -115,9 +106,9 @@ void decodeInput() {
   }
 
   if(rxBuffer[0] == CMD_PROG_FLASH) {
-    len = 2;
+    cmdLength = 2;
 
-    if(checkCrc(rxBuffer,len)) {
+    if(checkCrc(rxBuffer,cmdLength)) {
       bootloaderFlashWrite((uint8_t*)payloadBuffer, sizeof(payloadBuffer),cmdAddress);
       fourWayPutAck();
       return;
@@ -125,7 +116,7 @@ void decodeInput() {
   }
 
   if(payloadIncoming) {
-    if(checkCrc(rxBuffer,len)) {
+    if(checkCrc(rxBuffer,cmdLength)) {
       memcpy(payloadBuffer, rxBuffer, payloadSize);
 
       fourWayPutAck();
@@ -136,10 +127,10 @@ void decodeInput() {
 
   // CMD, 00 , cmdAddressHiByte, cmdAddressLoByte, crcLoByte ,crcHiByte
   if(rxBuffer[0] == CMD_SET_ADDRESS){
-    len = 4;  // package without 2 byte crc
+    cmdLength = 4;  // package without 2 byte crc
     cmdAddress = 0x08000000 + (rxBuffer[2] << 8 | rxBuffer[3]);
 
-    if(checkCrc((uint8_t*)rxBuffer,len)) {
+    if(checkCrc((uint8_t*)rxBuffer,cmdLength)) {
       fourWayPutAck();
       cmdInvalid = 0;
     }
@@ -149,8 +140,8 @@ void decodeInput() {
 
   // for reading buffer rx buffer 0 = command byte.
   if(rxBuffer[0] == CMD_SET_BUFFER) {
-    len = 4;  // package without 2 byte crc
-      if(checkCrc((uint8_t*)rxBuffer,len)) {        // no ack with command set buffer;
+    cmdLength = 4;  // package without 2 byte crc
+      if(checkCrc((uint8_t*)rxBuffer,cmdLength)) {        // no ack with command set buffer;
         if(rxBuffer[2] == 0x01) {
           payloadSize = 256;                          // if nothing in this buffer
         } else {
@@ -163,8 +154,8 @@ void decodeInput() {
   }
 
   if(rxBuffer[0] == CMD_KEEP_ALIVE) {
-    len = 2;
-    if(checkCrc((uint8_t*)rxBuffer,len)){
+    cmdLength = 2;
+    if(checkCrc((uint8_t*)rxBuffer,cmdLength)){
       fourWaySetTransmit();
       fourWayPutChar(0xC1); // bad command message.
       fourWaySetReceive();
@@ -173,8 +164,8 @@ void decodeInput() {
   }
 
   if(rxBuffer[0] == CMD_ERASE_FLASH){
-    len = 2;
-    if(checkCrc((uint8_t*)rxBuffer,len)){
+    cmdLength = 2;
+    if(checkCrc((uint8_t*)rxBuffer,cmdLength)){
       fourWayPutAck();
     }
     return;
@@ -187,13 +178,13 @@ void decodeInput() {
 
   // for sending contents of flash memory at the memory location set in bootloader.c need to still set memory with data from set mem command
   if(rxBuffer[0] == CMD_READ_FLASH_SIL) {
-    len = 2;
+    cmdLength = 2;
     uint16_t dataBufferSize = rxBuffer[1];
     if(dataBufferSize == 0){
       dataBufferSize = 256;
     }
 
-    if (checkCrc((uint8_t*)rxBuffer,len)) {
+    if (checkCrc((uint8_t*)rxBuffer,cmdLength)) {
       fourWaySetTransmit();
       uint8_t dataBuffer[dataBufferSize + 3];        // make buffer 3 larger to fit CRC and ACK
       memset(dataBuffer, 0, sizeof(dataBuffer));
@@ -262,8 +253,8 @@ void fourWayPutChar(char data) {
   INPUT_GPIO->BSRR = INPUT_PIN; // write the stop bit
 }
 
-void fourWayPutString(uint8_t *data, int len) {
-  for(int i = 0; i < len; i++){
+void fourWayPutString(uint8_t *data, int cmdLength) {
+  for(int i = 0; i < cmdLength; i++){
     fourWayPutChar(data[i]);
     delayMicroseconds(BITTIME);
   }
