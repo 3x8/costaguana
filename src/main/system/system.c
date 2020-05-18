@@ -29,7 +29,6 @@ void systemClockConfig(void) {
   LL_SetSystemCoreClock(48000000);
 }
 
-
 void systemTim2Init(void) {
   LL_TIM_InitTypeDef TIM_InitStruct = {0};
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2);
@@ -44,7 +43,6 @@ void systemTim2Init(void) {
   LL_TIM_SetTriggerOutput(TIM2, LL_TIM_TRGO_RESET);
   LL_TIM_DisableMasterSlaveMode(TIM2);
 }
-
 
 void systemGpioInit(void) {
   LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
