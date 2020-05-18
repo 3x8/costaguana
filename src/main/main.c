@@ -19,20 +19,15 @@ typedef union __attribute__ ((packed)) {
     uint16_t word;
 } uint8_16_u;
 
+
 uint16_t len;
-uint8_t received_crc_low_byte;
-uint8_t received_crc_high_byte;
+
 uint8_t calculated_crc_low_byte;
 uint8_t calculated_crc_high_byte;
 uint16_t payload_buffer_size;
 char incoming_payload_no_command = 0;
 
 
-void systemClockConfig(void);
-static void systemGpioInit(void);
-static void systemTim2Init(void);
-
-void processmessage(void);
 void serialwriteChar(char data);
 void sendString(uint8_t data[], int len);
 void recieveBuffer();
@@ -320,7 +315,6 @@ int main(void) {
   FLASH->ACR |= FLASH_ACR_PRFTBE;   //// prefetch buffer enable
 
   systemClockConfig();
-
   systemGpioInit();
   systemTim2Init();
 
@@ -367,7 +361,7 @@ void systemClockConfig(void) {
 }
 
 
-static void systemTim2Init(void) {
+void systemTim2Init(void) {
   LL_TIM_InitTypeDef TIM_InitStruct = {0};
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2);
 
@@ -383,7 +377,7 @@ static void systemTim2Init(void) {
 }
 
 
-static void systemGpioInit(void) {
+void systemGpioInit(void) {
   LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
