@@ -46,3 +46,14 @@
 #define CMD_KEEP_ALIVE        0xFD
 #define CMD_SET_ADDRESS       0xFF
 #define CMD_SET_BUFFER        0xFE
+
+
+typedef union __attribute__ ((packed)) {
+    uint8_t bytes[2];
+    uint16_t word;
+} uint8_16_u;
+
+
+void fourWayPutChar(char data);
+void fourWayPutString(uint8_t data[], int len);
+void fourWayGetBuffer();

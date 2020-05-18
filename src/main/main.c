@@ -1,6 +1,5 @@
 #include "main.h"
 
-
 char messagereceived = 0;
 uint16_t invalid_command = 0;
 
@@ -14,12 +13,6 @@ uint8_t payLoadBuffer[256];
 char rxbyte = 0;
 uint32_t address;
 
-typedef union __attribute__ ((packed)) {
-    uint8_t bytes[2];
-    uint16_t word;
-} uint8_16_u;
-
-
 uint16_t len;
 
 uint8_t calculated_crc_low_byte;
@@ -27,10 +20,6 @@ uint8_t calculated_crc_high_byte;
 uint16_t payload_buffer_size;
 char incoming_payload_no_command = 0;
 
-
-void serialwriteChar(char data);
-void sendString(uint8_t data[], int len);
-void recieveBuffer();
 
 void delayMicroseconds(uint32_t micros){
   TIM2->CNT = 0;
@@ -56,8 +45,6 @@ void jump() {
   JumpToApplication();
 }
 
-
-
 void makeCrc(uint8_t* pBuff, uint16_t length) {
   static uint8_16_u CRC_16;
   CRC_16.word=0;
@@ -79,7 +66,6 @@ void makeCrc(uint8_t* pBuff, uint16_t length) {
 }
 
 char checkCrc(uint8_t* pBuff, uint16_t length) {
-
   char received_crc_low_byte2 = pBuff[length];          // one higher than len in buffer
   char received_crc_high_byte2 = pBuff[length+1];
 
@@ -92,39 +78,38 @@ char checkCrc(uint8_t* pBuff, uint16_t length) {
   }
 }
 
-
-void setReceive() {
+void fourWaySetReceive() {
   systemGpioInit();
 }
 
-void setTransmit() {
+void fourWaySetTransmit() {
   LL_GPIO_SetPinMode(INPUT_GPIO, INPUT_PIN, LL_GPIO_MODE_OUTPUT);       // set as reciever // clear bits and set receive bits..
 }
 
-void send_ACK() {
-  setTransmit();
-  serialwriteChar(0x30); // good ack!
-  setReceive();
+void fourWayPutAck() {
+  fourWaySetTransmit();
+  fourWayPutChar(0x30); // good ack!
+  fourWaySetReceive();
 }
 
-void sendDeviceInfo() {
-  setTransmit();
-  sendString(deviceInfo,9);
-  setReceive();
+void fourWayPutDeviceInfo() {
+  fourWaySetTransmit();
+  fourWayPutString(deviceInfo,9);
+  fourWaySetReceive();
 }
 
 
 void decodeInput() {
   if(rxBuffer[20] == 0x7d) {
     if(rxBuffer[12] == 13 && rxBuffer[13] == 66) {
-      sendDeviceInfo();
+      fourWayPutDeviceInfo();
       rxBuffer[20]= 0;
     }
     return;
   }
   if(rxBuffer[40] == 0x7d) {
     if(rxBuffer[32] == 13 && rxBuffer[33] == 66) {
-      sendDeviceInfo();
+      fourWayPutDeviceInfo();
       rxBuffer[20]= 0;
     }
     return;
@@ -135,7 +120,7 @@ void decodeInput() {
 
     if(checkCrc(rxBuffer,len)) {
       bootloaderFlashWrite((uint8_t*)payLoadBuffer, payload_buffer_size,address);
-      send_ACK();
+      fourWayPutAck();
       return;
     }
   }
@@ -148,7 +133,7 @@ void decodeInput() {
       for(int i = 0; i < len; i++){
         payLoadBuffer[i]= rxBuffer[i];
       }
-      send_ACK();
+      fourWayPutAck();
       incoming_payload_no_command = 0;
       return;
     }
@@ -159,7 +144,7 @@ void decodeInput() {
     address = 0x08000000 + (rxBuffer[2] << 8 | rxBuffer[3]);
 
     if(checkCrc((uint8_t*)rxBuffer,len)) {
-      send_ACK(); // will send Ack 0x30 and read input after transfer out callback
+      fourWayPutAck(); // will send Ack 0x30 and read input after transfer out callback
       invalid_command = 0;
     }
 
@@ -175,7 +160,7 @@ void decodeInput() {
           payload_buffer_size = rxBuffer[3];
         }
         incoming_payload_no_command = 1;
-        setReceive();
+        fourWaySetReceive();
         return;
      }
   }
@@ -183,9 +168,9 @@ void decodeInput() {
   if(rxBuffer[0] == CMD_KEEP_ALIVE) {
     len = 2;
     if(checkCrc((uint8_t*)rxBuffer,len)){
-      setTransmit();
-      serialwriteChar(0xC1); // bad command message.
-      setReceive();
+      fourWaySetTransmit();
+      fourWayPutChar(0xC1); // bad command message.
+      fourWaySetReceive();
     }
     return;
   }
@@ -193,7 +178,7 @@ void decodeInput() {
   if(rxBuffer[0] == CMD_ERASE_FLASH){
     len = 2;
     if(checkCrc((uint8_t*)rxBuffer,len)){
-      send_ACK();
+      fourWayPutAck();
     }
     return;
   }
@@ -212,7 +197,7 @@ void decodeInput() {
     }
 
     if (checkCrc((uint8_t*)rxBuffer,len)) {
-      setTransmit();
+      fourWaySetTransmit();
       uint8_t read_data[out_buffer_size + 3];        // make buffer 3 larger to fit CRC and ACK
       memset(read_data, 0, sizeof(read_data));
       bootloaderFlashRead((uint8_t*)read_data , address, out_buffer_size);
@@ -220,16 +205,16 @@ void decodeInput() {
       read_data[out_buffer_size] = calculated_crc_low_byte;
       read_data[out_buffer_size + 1] = calculated_crc_high_byte;
       read_data[out_buffer_size + 2] = 0x30;
-      sendString(read_data, out_buffer_size+3);
-      setReceive();
+      fourWayPutString(read_data, out_buffer_size+3);
+      fourWaySetReceive();
       return;
     }
   }
 
-  setTransmit();
-  serialwriteChar(0xC1); // bad command message.
+  fourWaySetTransmit();
+  fourWayPutChar(0xC1); // bad command message.
   invalid_command++;
-  setReceive();
+  fourWaySetReceive();
 }
 
 
@@ -262,7 +247,7 @@ void serialreadChar() {
 }
 
 
-void serialwriteChar(char data) {
+void fourWayPutChar(char data) {
   INPUT_GPIO->BRR = INPUT_PIN;; //initiate start bit
   char bits_to_read = 0;
   while (bits_to_read < 8) {
@@ -280,16 +265,16 @@ void serialwriteChar(char data) {
   INPUT_GPIO->BSRR = INPUT_PIN; //write the stop bit
 }
 
-void sendString(uint8_t *data, int len) {
+void fourWayPutString(uint8_t *data, int len) {
   for(int i = 0; i < len; i++){
-    serialwriteChar(data[i]);
+    fourWayPutChar(data[i]);
     delayMicroseconds(BITTIME);
   }
-  //serialwriteChar(10);     // for new line
+  //fourWayPutChar(10);     // for new line
 }
 
 
-void recieveBuffer(){
+void fourWayGetBuffer(){
   messagereceived = 0;
   memset(rxBuffer, 0, sizeof(rxBuffer));
 
@@ -320,10 +305,10 @@ int main(void) {
 
   LL_TIM_EnableCounter(TIM2);
 
-  setReceive();
+  fourWaySetReceive();
 
   while (true) {
-    recieveBuffer();
+    fourWayGetBuffer();
     if (invalid_command > 100) {
       jump();
     }
