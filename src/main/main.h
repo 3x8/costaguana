@@ -1,10 +1,12 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "target.h"
 #include "build/version.h"
+#include "bootloader/bootloader.h"
 
 #include "stm32f0xx_ll_crs.h"
 #include "stm32f0xx_ll_rcc.h"
@@ -44,8 +46,5 @@
 #define CMD_SET_ADDRESS       0xFF
 #define CMD_SET_BUFFER        0xFE
 
-
-void bootloaderFlashRead(uint8_t*  data , uint32_t add ,int  out_buff_len);
-void bootloaderFlashWrite(uint8_t *data, int length, uint32_t add);
 
 typedef void (*pFunction)(void);
