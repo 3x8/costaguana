@@ -70,11 +70,11 @@ bool checkCrc(uint8_t* pBuff, uint16_t length) {
 }
 
 void fourWaySetReceive() {
-  systemGpioInit();
+  LL_GPIO_SetPinMode(INPUT_GPIO, INPUT_PIN, LL_GPIO_MODE_INPUT);
 }
 
 void fourWaySetTransmit() {
-  LL_GPIO_SetPinMode(INPUT_GPIO, INPUT_PIN, LL_GPIO_MODE_OUTPUT);       // set as reciever // clear bits and set receive bits..
+  LL_GPIO_SetPinMode(INPUT_GPIO, INPUT_PIN, LL_GPIO_MODE_OUTPUT);
 }
 
 void fourWayPutAck() {
