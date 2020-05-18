@@ -44,9 +44,9 @@
 #define CMD_PROG_EEPROM       0x05
 #define CMD_READ_SRAM         0x06
 #define CMD_READ_FLASH_ATM    0x07
-#define CMD_KEEP_ALIVE        0xFD
-#define CMD_SET_ADDRESS       0xFF
-#define CMD_SET_BUFFER        0xFE
+#define CMD_KEEP_ALIVE        0xfd
+#define CMD_SET_ADDRESS       0xff
+#define CMD_SET_BUFFER        0xfe
 
 
 typedef union __attribute__ ((packed)) {
@@ -56,6 +56,6 @@ typedef union __attribute__ ((packed)) {
 
 
 void fourWayPutChar(char data);
-void fourWayPutString(uint8_t data[], int len);
+void fourWayPutBuffer(uint8_t data[], int len);
 void fourWayGetChar();
 void fourWayGetBuffer();

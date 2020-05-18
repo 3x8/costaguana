@@ -11,7 +11,7 @@ uint8_t payloadBuffer[256];
 uint16_t payloadSize;
 bool payloadIncoming = false;
 bool fourWayCharReceived = false;
-static uint8_16_u CRC_16;
+uint8_16_u CRC_16;
 uint32_t cmdAddress;
 uint16_t cmdInvalid = 0;
 uint16_t cmdLength;
@@ -91,7 +91,7 @@ void fourWayPutNack() {
 
 void fourWayPutDeviceInfo() {
   fourWaySetTransmit();
-  fourWayPutString(deviceInfo,sizeof(deviceInfo));
+  fourWayPutBuffer(deviceInfo,sizeof(deviceInfo));
   fourWayPutAck();
   fourWaySetReceive();
 }
@@ -200,7 +200,7 @@ void decodeInput() {
       dataBuffer[dataBufferSize] = CRC_16.bytes[0];
       dataBuffer[dataBufferSize + 1] = CRC_16.bytes[1];
       dataBuffer[dataBufferSize + 2] = 0x30;
-      fourWayPutString(dataBuffer, dataBufferSize+3);
+      fourWayPutBuffer(dataBuffer, dataBufferSize+3);
       fourWaySetReceive();
       return;
     }
@@ -263,7 +263,7 @@ void fourWayPutChar(char data) {
   LED_OFF(LED_BLUE);
 }
 
-void fourWayPutString(uint8_t *data, int cmdLength) {
+void fourWayPutBuffer(uint8_t *data, int cmdLength) {
   for(int i = 0; i < cmdLength; i++){
     fourWayPutChar(data[i]);
     delayMicroseconds(BITTIME);
