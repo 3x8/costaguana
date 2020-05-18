@@ -1,13 +1,8 @@
 #include "main.h"
 
-char receviedByte;
-int receivedCount;
-int count = 0;
+
 char messagereceived = 0;
 uint16_t invalid_command = 0;
-int cmd = 0;
-char eeprom_req = 0;
-int received;
 
 uint8_t deviceInfo[9] = {0x34,0x37,0x31,0x64,0x1f,0x06,0x06,0x01, 0x30};      // stm32 device info
 //uint8_t deviceInfo[9] = {0x34,0x37,0x31,0x64,0xf3,0x90,0x06,0x01, 0x30};       // silabs device id
@@ -15,13 +10,11 @@ uint8_t deviceInfo[9] = {0x34,0x37,0x31,0x64,0x1f,0x06,0x06,0x01, 0x30};      //
 
 
 size_t str_len;
-char connected = 0;
 //char data[3] = {0x35, 0x36, 0x37};
 uint8_t rxBuffer[258];
 uint8_t payLoadBuffer[256];
 char rxbyte=0;
 uint32_t address;
-int tick = 0;
 
 typedef union __attribute__ ((packed)) {
     uint8_t bytes[2];
@@ -36,10 +29,6 @@ uint8_t calculated_crc_high_byte;
 uint16_t payload_buffer_size;
 char incoming_payload_no_command = 0;
 
-char bootloaderactive = 1;
-
-uint32_t JumpAddress;
-pFunction JumpToApplication;
 
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
@@ -58,6 +47,9 @@ void delayMicroseconds(uint32_t micros){
 }
 
 void jump() {
+  uint32_t JumpAddress;
+  pFunction JumpToApplication;
+
   __disable_irq();
   JumpAddress = *(__IO uint32_t*) (APPLICATION_ADDRESS + 4);
   uint8_t value = *(uint8_t*)(EEPROM_ADDRESS);
@@ -110,7 +102,6 @@ char checkCrc(uint8_t* pBuff, uint16_t length) {
 
 void setReceive() {
   MX_GPIO_Init();
-  received = 0;
 }
 
 void setTransmit() {
@@ -130,9 +121,7 @@ void sendDeviceInfo() {
 }
 
 
-void decodeInput(){
-
-  cmd = rxBuffer[0];
+void decodeInput() {
   if(rxBuffer[20] == 0x7d) {
     if(rxBuffer[12] == 13 && rxBuffer[13] == 66) {
       sendDeviceInfo();
@@ -217,15 +206,13 @@ void decodeInput(){
   }
 
   if(rxBuffer[0] == CMD_READ_EEPROM) {
-    eeprom_req = 1;
+    // noop
   }
 
 
 
   if(rxBuffer[0] == CMD_READ_FLASH_SIL) {     // for sending contents of flash memory at the memory location set in bootloader.c need to still set memory with data from set mem command
     len = 2;
-    count++;
-
     uint16_t out_buffer_size = rxBuffer[1];
     if(out_buffer_size == 0){
       out_buffer_size = 256;
@@ -279,8 +266,6 @@ void serialreadChar() {
   delayMicroseconds(HALFBITTIME); //wait till the stop bit time begins
 
   messagereceived = 1;
-  receviedByte = rxbyte;
-  //return rxbyte;
 }
 
 
@@ -318,7 +303,7 @@ void recieveBuffer(){
   for(int i = 0; i < sizeof(rxBuffer); i++){
     serialreadChar();
     if(TIM2->CNT >=250) {
-      //count++;
+
       break;
     }else{
       rxBuffer[i] = rxbyte;
