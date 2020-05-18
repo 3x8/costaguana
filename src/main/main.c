@@ -82,6 +82,12 @@ void fourWayPutAck() {
   fourWaySetReceive();
 }
 
+void fourWayPutNack() {
+  fourWaySetTransmit();
+  fourWayPutChar(0xC1); // bad command message.
+  fourWaySetReceive();
+}
+
 void fourWayPutDeviceInfo() {
   fourWaySetTransmit();
   fourWayPutString(deviceInfo,sizeof(deviceInfo));
@@ -156,11 +162,8 @@ void decodeInput() {
   if(rxBuffer[0] == CMD_KEEP_ALIVE) {
     cmdLength = 2;
     if(checkCrc((uint8_t*)rxBuffer,cmdLength)){
+      //ToDo Nack
       fourWayPutAck();
-      /*
-      fourWaySetTransmit();
-      fourWayPutChar(0xC1); // bad command message.
-      fourWaySetReceive();*/
     }
     return;
   }
@@ -233,7 +236,7 @@ void fourWayGetChar() {
 
   delayMicroseconds(HALFBITTIME); // wait till the stop bit time begins
 
-  fourWayCharReceived = 1;
+  fourWayCharReceived = true;
 }
 
 
@@ -265,7 +268,7 @@ void fourWayPutString(uint8_t *data, int cmdLength) {
 
 
 void fourWayGetBuffer(){
-  fourWayCharReceived = 0;
+  fourWayCharReceived = false;
   memset(rxBuffer, 0, sizeof(rxBuffer));
 
   for(int i = 0; i < sizeof(rxBuffer); i++){
