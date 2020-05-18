@@ -21,19 +21,15 @@
 #define FLASH_FKEY1 ((uint32_t)0x45670123)
 #define FLASH_FKEY2 ((uint32_t)0xCDEF89AB)
 
-typedef void (*pFunction)(void);
-
-
 #define BAUDRATE 19200
 #define BITTIME 1000000/BAUDRATE
 #define HALFBITTIME 500000/BAUDRATE
-
 #define SHIFT_AMOUNT 2
 
 #define APPLICATION_ADDRESS (uint32_t)0x08001000               // 4k
 #define EEPROM_START_ADD  (uint32_t)0x08007C00
-#define FLASH_END_ADD (uint32_t)0x08007FFF               // 32 k
 
+// USE_SERIAL_4WAY_BLHELI_BOOTLOADER
 #define CMD_RUN               0x00
 #define CMD_PROG_FLASH        0x01
 #define CMD_ERASE_FLASH       0x02
@@ -51,3 +47,5 @@ typedef void (*pFunction)(void);
 
 void bootloaderFlashRead(uint8_t*  data , uint32_t add ,int  out_buff_len);
 void bootloaderFlashWrite(uint8_t *data, int length, uint32_t add);
+
+typedef void (*pFunction)(void);

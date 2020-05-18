@@ -99,12 +99,12 @@ OPTIMISE_DEFAULT      := -Og
 LTO_FLAGS             := $(OPTIMISE_DEFAULT)
 DEBUG_FLAGS            = -ggdb3 -DDEBUG
 else
-OPTIMISATION_BASE     := -flto -fuse-linker-plugin 
-OPTIMISE_DEFAULT      := -Ofast
+OPTIMISATION_BASE     := -flto -fuse-linker-plugin
+OPTIMISE_DEFAULT      := -Os
 OPTIMISE_SPEED        := -Ofast
 OPTIMISE_SIZE         := -Os
 
-LTO_FLAGS             := $(OPTIMISATION_BASE) $(OPTIMISE_SPEED)
+LTO_FLAGS             := $(OPTIMISATION_BASE) $(OPTIMISE_DEFAULT)
 endif
 
 # start specific includes
