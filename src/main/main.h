@@ -48,6 +48,9 @@
 #define CMD_SET_ADDRESS       0xff
 #define CMD_SET_BUFFER        0xfe
 
+#define ACK_CMD_OK            0x30
+#define ACK_CMD_KO            0xC1
+
 
 typedef union __attribute__ ((packed)) {
   uint8_t bytes[2];

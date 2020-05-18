@@ -77,17 +77,9 @@ void fourWaySetTransmit() {
   LL_GPIO_SetPinMode(INPUT_GPIO, INPUT_PIN, LL_GPIO_MODE_OUTPUT);
 }
 
-void fourWayPutAck() {
-  fourWayPutChar(0x30); // good ack!
-}
-
-void fourWayPutNack() {
-  fourWayPutChar(0xC1); // bad command message.
-}
-
 void fourWayPutDeviceInfo() {
   fourWayPutBuffer(deviceInfo,sizeof(deviceInfo));
-  fourWayPutAck();
+  fourWayPutChar(ACK_CMD_OK);
 }
 
 
@@ -112,7 +104,7 @@ void decodeInput() {
 
     if(checkCrc(rxBuffer,cmdLength)) {
       bootloaderFlashWrite((uint8_t*)payloadBuffer, sizeof(payloadBuffer),cmdAddress);
-      fourWayPutAck();
+      fourWayPutChar(ACK_CMD_OK);
       return;
     }
   }
@@ -120,9 +112,8 @@ void decodeInput() {
   if(payloadIncoming) {
     if(checkCrc(rxBuffer,cmdLength)) {
       memcpy(payloadBuffer, rxBuffer, payloadSize);
-
-      fourWayPutAck();
       payloadIncoming = false;
+      fourWayPutChar(ACK_CMD_OK);
       return;
     }
   }
@@ -133,8 +124,8 @@ void decodeInput() {
     cmdAddress = 0x08000000 + (rxBuffer[2] << 8 | rxBuffer[3]);
 
     if(checkCrc((uint8_t*)rxBuffer,cmdLength)) {
-      fourWayPutAck();
       cmdInvalid = 0;
+      fourWayPutChar(ACK_CMD_OK);
     }
 
     return;
@@ -159,7 +150,7 @@ void decodeInput() {
     cmdLength = 2;
     if(checkCrc((uint8_t*)rxBuffer,cmdLength)){
       //ToDo Nack
-      fourWayPutAck();
+      fourWayPutChar(ACK_CMD_OK);
     }
     return;
   }
@@ -167,7 +158,7 @@ void decodeInput() {
   if(rxBuffer[0] == CMD_ERASE_FLASH){
     cmdLength = 2;
     if(checkCrc((uint8_t*)rxBuffer,cmdLength)){
-      fourWayPutAck();
+      fourWayPutChar(ACK_CMD_OK);
     }
     return;
   }
@@ -192,14 +183,14 @@ void decodeInput() {
       makeCrc(dataBuffer,dataBufferSize);
       dataBuffer[dataBufferSize] = CRC_16.bytes[0];
       dataBuffer[dataBufferSize + 1] = CRC_16.bytes[1];
-      dataBuffer[dataBufferSize + 2] = 0x30;
+      dataBuffer[dataBufferSize + 2] = ACK_CMD_OK;
       fourWayPutBuffer(dataBuffer, dataBufferSize+3);
       return;
     }
   }
 
   cmdInvalid++;
-  fourWayPutChar(0xC1); // bad command message.
+  fourWayPutChar(ACK_CMD_KO);
 }
 
 
