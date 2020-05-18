@@ -23,9 +23,6 @@
 
 typedef void (*pFunction)(void);
 
-//ToDo
-#define input_pin LL_GPIO_PIN_2
-#define shift_amount 2
 
 #define BAUDRATE 19200
 #define BITTIME 1000000/BAUDRATE
