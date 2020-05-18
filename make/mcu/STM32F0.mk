@@ -26,7 +26,7 @@ ARCH_FLAGS      = -mthumb -mcpu=cortex-m0
 
 DEVICE_FLAGS   += -DUSE_FULL_LL_DRIVER
 
-MCU_SRC        := ""
+MCU_SRC        :=
 
 ifneq ($(DEBUG),GDB)
 OPTIMISE_DEFAULT    := -Os

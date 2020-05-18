@@ -19,7 +19,7 @@ SPEED_OPTIMISED_SRC := $(SPEED_OPTIMISED_SRC) \
                     main.c \
                     bootloader/bootloader.c
 
-SIZE_OPTIMISED_SRC  := ""
+SIZE_OPTIMISED_SRC  :=
 
 # check if target.mk supplied
 SRC                 := $(STARTUP_DIR)/$(STARTUP_SRC) $(COMMON_SRC) $(SPEED_OPTIMISED_SRC) $(MCU_SRC) $(CMSIS_SRC) $(DRIVER_SRC)
