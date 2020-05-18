@@ -54,8 +54,8 @@ void bootloaderFlashWrite(uint8_t *data, int length, uint32_t address) {
   SET_BIT(FLASH->CR, FLASH_CR_LOCK);
 }
 
-void bootloaderFlashRead(uint8_t*  data , uint32_t address , int out_buff_len){;
-  for (int i = 0; i < out_buff_len ; i ++) {
+void bootloaderFlashRead(uint8_t*  data , uint32_t address , int length) {
+  for (int i = 0; i < length ; i ++) {
     data[i] = *(uint8_t*)(address + i);
   }
 }
