@@ -4,10 +4,6 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "target.h"
-#include "build/version.h"
-#include "bootloader/bootloader.h"
-
 #include "stm32f0xx_ll_crs.h"
 #include "stm32f0xx_ll_rcc.h"
 #include "stm32f0xx_ll_bus.h"
@@ -19,6 +15,10 @@
 #include "stm32f0xx_ll_dma.h"
 #include "stm32f0xx_ll_tim.h"
 #include "stm32f0xx_ll_gpio.h"
+
+#include "target.h"
+#include "build/version.h"
+#include "bootloader/bootloader.h"
 
 #define FLASH_FKEY1 ((uint32_t)0x45670123)
 #define FLASH_FKEY2 ((uint32_t)0xCDEF89AB)
