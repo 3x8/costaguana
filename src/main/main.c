@@ -17,7 +17,7 @@ uint16_t cmdInvalid = 0;
 uint16_t cmdLength;
 
 
-void delayMicroseconds(uint32_t micros){
+void delayMicroseconds(uint32_t micros) {
   TIM2->CNT = 0;
   while (TIM2->CNT < micros) {
     // wait
@@ -81,7 +81,6 @@ void fourWayPutDeviceInfo() {
   fourWayPutBuffer(deviceInfo,sizeof(deviceInfo));
   fourWayPutChar(ACK_CMD_OK);
 }
-
 
 void decodeInput() {
   if(rxBuffer[20] == 0x7d) {
@@ -247,16 +246,7 @@ void fourWayPutChar(char data) {
   fourWaySetReceive();
 }
 
-void fourWayPutBuffer(uint8_t *data, int cmdLength) {
-  for(int i = 0; i < cmdLength; i++){
-    fourWayPutChar(data[i]);
-    delayMicroseconds(FOUR_WAY_BIT_TIME);
-  }
-  //fourWayPutChar(10);     // for new line
-}
-
-
-void fourWayGetBuffer(){
+void fourWayGetBuffer() {
   fourWayCharReceived = false;
   memset(rxBuffer, 0, sizeof(rxBuffer));
 
@@ -272,6 +262,14 @@ void fourWayGetBuffer(){
     }
   }
   decodeInput();
+}
+
+void fourWayPutBuffer(uint8_t *data, int cmdLength) {
+  for(int i = 0; i < cmdLength; i++){
+    fourWayPutChar(data[i]);
+    delayMicroseconds(FOUR_WAY_BIT_TIME);
+  }
+  //fourWayPutChar(10);     // for new line
 }
 
 int main(void) {

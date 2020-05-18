@@ -58,7 +58,15 @@ typedef union __attribute__ ((packed)) {
 } uint8_16_u;
 
 
-void fourWayPutChar(char data);
-void fourWayPutBuffer(uint8_t data[], int len);
+void delayMicroseconds(uint32_t micros);
+void jump();
+void makeCrc(uint8_t* pBuff, uint16_t length);
+bool checkCrc(uint8_t* pBuff, uint16_t length);
+void fourWaySetReceive();
+void fourWaySetTransmit();
+void fourWayPutDeviceInfo();
+void decodeInput();
 void fourWayGetChar();
+void fourWayPutChar(char data);
 void fourWayGetBuffer();
+void fourWayPutBuffer(uint8_t *data, int cmdLength);
