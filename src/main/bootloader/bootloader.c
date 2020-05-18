@@ -1,4 +1,3 @@
-#include <string.h>
 #include "bootloader.h"
 
 void bootloaderFlashWrite(uint8_t *data, int length, uint32_t add) {

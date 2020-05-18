@@ -114,7 +114,7 @@ void setReceive() {
 }
 
 void setTransmit() {
-  LL_GPIO_SetPinMode(GPIOA, input_pin, LL_GPIO_MODE_OUTPUT);       // set as reciever // clear bits and set receive bits..
+  LL_GPIO_SetPinMode(INPUT_GPIO, INPUT_PIN, LL_GPIO_MODE_OUTPUT);       // set as reciever // clear bits and set receive bits..
 }
 
 void send_ACK() {
@@ -256,11 +256,12 @@ void decodeInput(){
 void serialreadChar() {
   rxbyte=0;
 
-  while(!(GPIOA->IDR & input_pin)) {
+  while(!(INPUT_GPIO->IDR & INPUT_PIN)) {
     // wait for rx to go high
   }
 
-  while((GPIOA->IDR & input_pin)){   // wait for it go go low
+  while((INPUT_GPIO->IDR & INPUT_PIN)){
+    // wait for rx to go low
     if(TIM2->CNT > 250 && messagereceived){
       return;
     }
@@ -271,8 +272,7 @@ void serialreadChar() {
   int bits_to_read = 0;
   while (bits_to_read < 8) {
     delayMicroseconds(BITTIME);
-    rxbyte = rxbyte | ((( GPIOA->IDR & input_pin)) >> shift_amount) << bits_to_read;
-    //bits[bits_to_read] = ( GPIOA->IDR & LL_GPIO_PIN_2) >>2;        // shift by two for address offset
+    rxbyte = rxbyte | ((( INPUT_GPIO->IDR & INPUT_PIN)) >> SHIFT_AMOUNT) << bits_to_read;
     bits_to_read++;
   }
 
@@ -285,21 +285,21 @@ void serialreadChar() {
 
 
 void serialwriteChar(char data) {
-  GPIOA->BRR = input_pin;; //initiate start bit
+  INPUT_GPIO->BRR = INPUT_PIN;; //initiate start bit
   char bits_to_read = 0;
   while (bits_to_read < 8) {
     delayMicroseconds(BITTIME);
     if (data & 0x01) {
-      GPIOA->BSRR = input_pin;
+      INPUT_GPIO->BSRR = INPUT_PIN;
     }else{
-      GPIOA->BRR = input_pin;
+      INPUT_GPIO->BRR = INPUT_PIN;
     }
     bits_to_read++;
     data = data >> 1;
   }
 
   delayMicroseconds(BITTIME);
-  GPIOA->BSRR = input_pin; //write the stop bit
+  INPUT_GPIO->BSRR = INPUT_PIN; //write the stop bit
 }
 
 void sendString(uint8_t *data, int len) {
@@ -403,9 +403,10 @@ static void MX_TIM2_Init(void) {
 static void MX_GPIO_Init(void) {
   LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
+  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
 
-  GPIO_InitStruct.Pin = input_pin;
+  GPIO_InitStruct.Pin = INPUT_PIN;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_UP;
-  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  LL_GPIO_Init(INPUT_GPIO, &GPIO_InitStruct);
 }

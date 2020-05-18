@@ -28,6 +28,8 @@ typedef void (*pFunction)(void);
 #define BITTIME 1000000/BAUDRATE
 #define HALFBITTIME 500000/BAUDRATE
 
+#define SHIFT_AMOUNT 2
+
 #define APPLICATION_ADDRESS (uint32_t)0x08001000               // 4k
 #define EEPROM_START_ADD  (uint32_t)0x08007C00
 #define FLASH_END_ADD (uint32_t)0x08007FFF               // 32 k
