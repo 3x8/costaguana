@@ -20,6 +20,7 @@
 #include "version/version.h"
 #include "bootloader/bootloader.h"
 #include "system/system.h"
+#include "system/led.h"
 
 #define FLASH_FKEY1 ((uint32_t)0x45670123)
 #define FLASH_FKEY2 ((uint32_t)0xCDEF89AB)

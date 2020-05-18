@@ -241,6 +241,7 @@ void fourWayGetChar() {
 
 
 void fourWayPutChar(char data) {
+  LED_ON(LED_BLUE);
   INPUT_GPIO->BRR = INPUT_PIN;; // initiate start bit
   char bits_to_read = 0;
   while (bits_to_read < 8) {
@@ -256,6 +257,7 @@ void fourWayPutChar(char data) {
 
   delayMicroseconds(BITTIME);
   INPUT_GPIO->BSRR = INPUT_PIN; // write the stop bit
+  LED_OFF(LED_BLUE);
 }
 
 void fourWayPutString(uint8_t *data, int cmdLength) {
@@ -294,7 +296,9 @@ int main(void) {
 
   systemClockConfig();
   systemGpioInit();
+  ledInit();
   systemTim2Init();
+  ledOff();
 
   LL_TIM_EnableCounter(TIM2);
 
