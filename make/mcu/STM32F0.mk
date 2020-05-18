@@ -6,7 +6,7 @@ CMSIS_DIR       := $(LIB_DIR)/$(TARGET_MCU)/Drivers/CMSIS
 
 DRIVER_DIR       = $(LIB_DIR)/$(TARGET_MCU)/Drivers/STM32F0xx_HAL_Driver
 DRIVER_SRC       = $(notdir $(wildcard $(DRIVER_DIR)/Src/*.c))
-EXCLUDES         = ""
+EXCLUDES         = 
 
 STARTUP_SRC      = startup_$(STM_CHIP)_gcc.s
 DRIVER_SRC      := $(filter-out ${EXCLUDES}, $(DRIVER_SRC))

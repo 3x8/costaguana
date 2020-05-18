@@ -21,5 +21,34 @@
 #define FLASH_FKEY1 ((uint32_t)0x45670123)
 #define FLASH_FKEY2 ((uint32_t)0xCDEF89AB)
 
+typedef void (*pFunction)(void);
+
+//ToDo
+#define input_pin LL_GPIO_PIN_2
+#define shift_amount 2
+
+#define BAUDRATE 19200
+#define BITTIME 1000000/BAUDRATE
+#define HALFBITTIME 500000/BAUDRATE
+
+#define APPLICATION_ADDRESS (uint32_t)0x08001000               // 4k
+#define EEPROM_START_ADD  (uint32_t)0x08007C00
+#define FLASH_END_ADD (uint32_t)0x08007FFF               // 32 k
+
+#define CMD_RUN               0x00
+#define CMD_PROG_FLASH        0x01
+#define CMD_ERASE_FLASH       0x02
+#define CMD_READ_FLASH_SIL    0x03
+#define CMD_VERIFY_FLASH      0x03
+#define CMD_VERIFY_FLASH_ARM  0x04
+#define CMD_READ_EEPROM       0x04
+#define CMD_PROG_EEPROM       0x05
+#define CMD_READ_SRAM         0x06
+#define CMD_READ_FLASH_ATM    0x07
+#define CMD_KEEP_ALIVE        0xFD
+#define CMD_SET_ADDRESS       0xFF
+#define CMD_SET_BUFFER        0xFE
+
+
 void bootloaderFlashRead(uint8_t*  data , uint32_t add ,int  out_buff_len);
 void bootloaderFlashWrite(uint8_t *data, int length, uint32_t add);
