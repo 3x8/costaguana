@@ -84,7 +84,7 @@ void fourWayPutAck() {
 
 void fourWayPutDeviceInfo() {
   fourWaySetTransmit();
-  fourWayPutString(deviceInfo,9);
+  fourWayPutString(deviceInfo,sizeof(deviceInfo));
   fourWaySetReceive();
 }
 
