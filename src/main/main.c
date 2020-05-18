@@ -209,16 +209,16 @@ void fourWayGetChar() {
     }
   }
 
-  delayMicroseconds(HALFBITTIME); // wait to get the center of bit time
+  delayMicroseconds(FOUR_WAY_BIT_TIME_HALF); // wait to get the center of bit time
 
   int bits_to_read = 0;
   while (bits_to_read < 8) {
-    delayMicroseconds(BITTIME);
-    rxByte = rxByte | ((( INPUT_GPIO->IDR & INPUT_PIN)) >> SHIFT_AMOUNT) << bits_to_read;
+    delayMicroseconds(FOUR_WAY_BIT_TIME);
+    rxByte = rxByte | ((( INPUT_GPIO->IDR & INPUT_PIN)) >> FOUR_WAY_SHIFT_AMOUNT) << bits_to_read;
     bits_to_read++;
   }
 
-  delayMicroseconds(HALFBITTIME); // wait till the stop bit time begins
+  delayMicroseconds(FOUR_WAY_BIT_TIME_HALF); // wait till the stop bit time begins
 
   fourWayCharReceived = true;
 }
@@ -231,7 +231,7 @@ void fourWayPutChar(char data) {
   INPUT_GPIO->BRR = INPUT_PIN;; // initiate start bit
   char bits_to_read = 0;
   while (bits_to_read < 8) {
-    delayMicroseconds(BITTIME);
+    delayMicroseconds(FOUR_WAY_BIT_TIME);
     if (data & 0x01) {
       INPUT_GPIO->BSRR = INPUT_PIN;
     }else{
@@ -241,7 +241,7 @@ void fourWayPutChar(char data) {
     data = data >> 1;
   }
 
-  delayMicroseconds(BITTIME);
+  delayMicroseconds(FOUR_WAY_BIT_TIME);
   INPUT_GPIO->BSRR = INPUT_PIN; // write the stop bit
   LED_OFF(LED_BLUE);
   fourWaySetReceive();
@@ -250,7 +250,7 @@ void fourWayPutChar(char data) {
 void fourWayPutBuffer(uint8_t *data, int cmdLength) {
   for(int i = 0; i < cmdLength; i++){
     fourWayPutChar(data[i]);
-    delayMicroseconds(BITTIME);
+    delayMicroseconds(FOUR_WAY_BIT_TIME);
   }
   //fourWayPutChar(10);     // for new line
 }
