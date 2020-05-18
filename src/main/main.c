@@ -29,7 +29,7 @@ char incoming_payload_no_command = 0;
 
 
 void SystemClock_Config(void);
-static void MX_GPIO_Init(void);
+static void systemGpioInit(void);
 static void systemTim2Init(void);
 
 void processmessage(void);
@@ -99,7 +99,7 @@ char checkCrc(uint8_t* pBuff, uint16_t length) {
 
 
 void setReceive() {
-  MX_GPIO_Init();
+  systemGpioInit();
 }
 
 void setTransmit() {
@@ -321,7 +321,7 @@ int main(void) {
 
   SystemClock_Config();
 
-  MX_GPIO_Init();
+  systemGpioInit();
   systemTim2Init();
 
   LL_TIM_EnableCounter(TIM2);
@@ -383,7 +383,7 @@ static void systemTim2Init(void) {
 }
 
 
-static void MX_GPIO_Init(void) {
+static void systemGpioInit(void) {
   LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB);
