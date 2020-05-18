@@ -27,7 +27,7 @@
 #define SHIFT_AMOUNT 2
 
 #define APPLICATION_ADDRESS (uint32_t)0x08001000               // 4k
-#define EEPROM_START_ADDRESS  (uint32_t)0x08007C00
+#define EEPROM_ADDRESS  (uint32_t)0x08007C00
 
 // USE_SERIAL_4WAY_BLHELI_BOOTLOADER
 #define CMD_RUN               0x00

@@ -60,7 +60,7 @@ void delayMicroseconds(uint32_t micros){
 void jump() {
   __disable_irq();
   JumpAddress = *(__IO uint32_t*) (APPLICATION_ADDRESS + 4);
-  uint8_t value = *(uint8_t*)(EEPROM_START_ADDRESS);
+  uint8_t value = *(uint8_t*)(EEPROM_ADDRESS);
   if (value != 0x01) {      // check first byte of eeprom to see if its programmed, if not do not jump
     invalid_command = 0;
     return;
