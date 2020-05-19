@@ -59,7 +59,8 @@
 #define CMD_SET_BUFFER        0xfe
 // reversed
 #define CMD_ACK_OK            0x30
-#define CMD_ACK_KO            0xC1
+#define CMD_ACK_KO            0xc1
+#define CMD_ACK_CRC           0xc2
 
 
 typedef union __attribute__ ((packed)) {

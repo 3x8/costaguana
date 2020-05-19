@@ -1,8 +1,8 @@
 #include "main.h"
 
-//uint8_t deviceInfo[8] = {0x34,0x37,0x31,0x64,0x1f,0x06,0x06,0x01};  // stm32 device info
+//uint8_t deviceInfo[8] = {0x34,0x37,0x31,0x64,0x1f,0x06,0x06,0x01};  // stm32 device id
 //uint8_t deviceInfo[8] = {0x34,0x37,0x31,0x64,0xf3,0x90,0x06,0x01};  // silabs device id
-uint8_t deviceInfo[8] = {0x34,0x37,0x31,0x64,0xe8,0xb2,0x06,0x01};  // blheli_s identifier
+uint8_t deviceInfo[8] = {0x34,0x37,0x31,0x64,0xe8,0xb2,0x06,0x01};  // blheli_s id
 
 char fourWayRxByte = 0;
 bool fourWayCharReceived = false;
@@ -10,7 +10,6 @@ uint8_t fourWayRxBuffer[258];
 uint8_t payloadBuffer[256];
 uint16_t payloadSize;
 bool payloadIncoming = false;
-
 
 uint32_t cmdAddress;
 uint16_t cmdLength;
@@ -157,7 +156,7 @@ void decodeInput() {
     return;
   }
 
-  // for sending contents of flash memory at the memory location set in bootloader.c need to still set memory with data from set mem command
+  // send flash cmdAddress, dataBufferSize
   if (fourWayRxBuffer[0] == CMD_READ_FLASH_SIL) {
     cmdLength = 2;
     if (crcCompare((uint8_t*)fourWayRxBuffer,cmdLength)) {
@@ -214,6 +213,7 @@ void fourWayPutChar(char data) {
   fourWayConfigTransmit();
   LED_OFF(LED_RED);
   LED_ON(LED_BLUE);
+
   // start bit
   INPUT_GPIO->BRR = INPUT_PIN;
   uint8_t bitIndex = 0;
@@ -227,7 +227,6 @@ void fourWayPutChar(char data) {
     bitIndex++;
     data = data >> 1;
   }
-
   delayMicroseconds(FOUR_WAY_BIT_TIME);
   // stop bit
   INPUT_GPIO->BSRR = INPUT_PIN;
