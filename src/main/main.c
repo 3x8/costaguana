@@ -30,7 +30,7 @@ void jump() {
   pFunction JumpToApplication;
 
   __disable_irq();
-  JumpAddress = *(__IO uint32_t*) (APPLICATION_ADDRESS + 4);
+  JumpAddress = *(__IO uint32_t*)(APPLICATION_ADDRESS + 4);
   uint8_t value = *(uint8_t*)(EEPROM_START_ADDRESS);
 
   if (value != EEPROM_CONF_VERSION) {
@@ -43,10 +43,10 @@ void jump() {
   JumpToApplication();
 }
 
-void makeCrc(uint8_t* pBuff, uint16_t length) {
-  cmdCrc16.word=0;
+void makeCrc(uint8_t* pBuffer, uint16_t length) {
+  cmdCrc16.word = 0;
   for (int i = 0; i < length; i++) {
-    uint8_t xb = pBuff[i];
+    uint8_t xb = pBuffer[i];
     for (uint8_t j = 0; j < 8; j++) {
       if (((xb & 0x01) ^ (cmdCrc16.word & 0x0001)) !=0 ) {
         cmdCrc16.word = cmdCrc16.word >> 1;
@@ -59,9 +59,9 @@ void makeCrc(uint8_t* pBuff, uint16_t length) {
    }
 }
 
-bool checkCrc(uint8_t* pBuff, uint16_t length) {
-  makeCrc(pBuff,length);
-  if ((cmdCrc16.bytes[0] == pBuff[length])  && (cmdCrc16.bytes[1] == pBuff[length+1])) {
+bool checkCrc(uint8_t* pBuffer, uint16_t length) {
+  makeCrc(pBuffer,length);
+  if ((cmdCrc16.bytes[0] == pBuffer[length])  && (cmdCrc16.bytes[1] == pBuffer[length+1])) {
     return (true);
   } else {
     return (false);
