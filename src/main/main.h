@@ -30,8 +30,6 @@
 #define FOUR_WAY_BIT_TIME_HALF (500000/FOUR_WAY_BAUD_RATE)
 #define FOUR_WAY_SHIFT_AMOUNT 2
 
-
-//#define FLASH_PAGE_SIZE         0x400
 #if defined(STM32F030x6) || defined(STM32F030x8) || defined(STM32F031x6) || defined(STM32F038xx) || defined(STM32F051x8) || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F058xx) || defined(STM32F070x6)
   #define FLASH_PAGE_SIZE          0x400U
 #endif
@@ -43,7 +41,7 @@
 #define FLASH_CONFIG_SIZE       0x800
 #define APPLICATION_ADDRESS     (uint32_t)0x08002000
 #define EEPROM_START_ADDRESS    (0x08000000 + (uint32_t)((FLASH_PAGE_SIZE * FLASH_PAGE_COUNT) - FLASH_CONFIG_SIZE))
-
+#define EEPROM_CONF_VERSION     3
 
 // USE_SERIAL_4WAY_BLHELI_BOOTLOADER
 #define CMD_RUN               0x00
@@ -59,9 +57,9 @@
 #define CMD_KEEP_ALIVE        0xfd
 #define CMD_SET_ADDRESS       0xff
 #define CMD_SET_BUFFER        0xfe
-
-#define ACK_CMD_OK            0x30
-#define ACK_CMD_KO            0xC1
+// reversed
+#define CMD_ACK_OK            0x30
+#define CMD_ACK_KO            0xC1
 
 
 typedef union __attribute__ ((packed)) {

@@ -32,9 +32,7 @@ void jump() {
   JumpAddress = *(__IO uint32_t*) (APPLICATION_ADDRESS + 4);
   uint8_t value = *(uint8_t*)(EEPROM_START_ADDRESS);
 
-  //ToDo
-  // check first byte of eeprom to see if its programmed, if not do not jump
-  if (value != 0x01) {
+  if (value != EEPROM_CONF_VERSION) {
     cmdInvalid = 0;
     return;
   }
@@ -79,7 +77,7 @@ void fourWaySetTransmit() {
 
 void fourWayPutDeviceInfo() {
   fourWayPutBuffer(deviceInfo,sizeof(deviceInfo));
-  fourWayPutChar(ACK_CMD_OK);
+  fourWayPutChar(CMD_ACK_OK);
 }
 
 void decodeInput() {
@@ -87,7 +85,7 @@ void decodeInput() {
     if (checkCrc(rxBuffer,cmdLength)) {
       memcpy(payloadBuffer, rxBuffer, payloadSize);
       payloadIncoming = false;
-      fourWayPutChar(ACK_CMD_OK);
+      fourWayPutChar(CMD_ACK_OK);
     }
     return;
   }
@@ -103,7 +101,7 @@ void decodeInput() {
     cmdLength = 2;
     if (checkCrc(rxBuffer,cmdLength)) {
       bootloaderFlashWrite((uint8_t*)payloadBuffer, sizeof(payloadBuffer),cmdAddress);
-      fourWayPutChar(ACK_CMD_OK);
+      fourWayPutChar(CMD_ACK_OK);
     }
     return;
   }
@@ -116,7 +114,7 @@ void decodeInput() {
       //cmdAddress = 0x08000000 + (rxBuffer[2] << 8 | rxBuffer[3]);
       cmdAddress = EEPROM_START_ADDRESS;
       cmdInvalid = 0;
-      fourWayPutChar(ACK_CMD_OK);
+      fourWayPutChar(CMD_ACK_OK);
     }
     return;
   }
@@ -140,7 +138,7 @@ void decodeInput() {
     cmdLength = 2;
     if (checkCrc((uint8_t*)rxBuffer,cmdLength)){
       //ToDo Nack
-      fourWayPutChar(ACK_CMD_OK);
+      fourWayPutChar(CMD_ACK_OK);
     }
     return;
   }
@@ -148,7 +146,7 @@ void decodeInput() {
   if (rxBuffer[0] == CMD_ERASE_FLASH) {
     cmdLength = 2;
     if (checkCrc((uint8_t*)rxBuffer,cmdLength)) {
-      fourWayPutChar(ACK_CMD_OK);
+      fourWayPutChar(CMD_ACK_OK);
     }
     return;
   }
@@ -173,14 +171,14 @@ void decodeInput() {
       makeCrc(dataBuffer,dataBufferSize);
       dataBuffer[dataBufferSize] = CRC_16.bytes[0];
       dataBuffer[dataBufferSize + 1] = CRC_16.bytes[1];
-      dataBuffer[dataBufferSize + 2] = ACK_CMD_OK;
+      dataBuffer[dataBufferSize + 2] = CMD_ACK_OK;
       fourWayPutBuffer(dataBuffer, dataBufferSize+3);
     }
     return;
   }
 
   cmdInvalid++;
-  fourWayPutChar(ACK_CMD_KO);
+  fourWayPutChar(CMD_ACK_KO);
 }
 
 void fourWayGetChar() {
