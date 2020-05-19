@@ -4,17 +4,18 @@
 //uint8_t deviceInfo[8] = {0x34,0x37,0x31,0x64,0xf3,0x90,0x06,0x01};  // silabs device id
 uint8_t deviceInfo[8] = {0x34,0x37,0x31,0x64,0xe8,0xb2,0x06,0x01};  // blheli_s identifier
 
-
-char rxByte = 0;
-uint8_t rxBuffer[258];
+char fourWayRxByte = 0;
+bool fourWayCharReceived = false;
+uint8_t fourWayRxBuffer[258];
 uint8_t payloadBuffer[256];
 uint16_t payloadSize;
 bool payloadIncoming = false;
-bool fourWayCharReceived = false;
-uint8_16_u CRC_16;
+
+
 uint32_t cmdAddress;
-uint16_t cmdInvalid = 0;
 uint16_t cmdLength;
+crc_16_u cmdCrc16;
+uint16_t cmdInvalid = 0;
 
 
 void delayMicroseconds(uint32_t micros) {
@@ -43,15 +44,15 @@ void jump() {
 }
 
 void makeCrc(uint8_t* pBuff, uint16_t length) {
-  CRC_16.word=0;
+  cmdCrc16.word=0;
   for (int i = 0; i < length; i++) {
     uint8_t xb = pBuff[i];
     for (uint8_t j = 0; j < 8; j++) {
-      if (((xb & 0x01) ^ (CRC_16.word & 0x0001)) !=0 ) {
-        CRC_16.word = CRC_16.word >> 1;
-        CRC_16.word = CRC_16.word ^ 0xA001;
+      if (((xb & 0x01) ^ (cmdCrc16.word & 0x0001)) !=0 ) {
+        cmdCrc16.word = cmdCrc16.word >> 1;
+        cmdCrc16.word = cmdCrc16.word ^ 0xA001;
       } else {
-        CRC_16.word = CRC_16.word >> 1;
+        cmdCrc16.word = cmdCrc16.word >> 1;
       }
       xb = xb >> 1;
     }
@@ -60,7 +61,7 @@ void makeCrc(uint8_t* pBuff, uint16_t length) {
 
 bool checkCrc(uint8_t* pBuff, uint16_t length) {
   makeCrc(pBuff,length);
-  if ((CRC_16.bytes[0] == pBuff[length])  && (CRC_16.bytes[1] == pBuff[length+1])) {
+  if ((cmdCrc16.bytes[0] == pBuff[length])  && (cmdCrc16.bytes[1] == pBuff[length+1])) {
     return (true);
   } else {
     return (false);
@@ -82,24 +83,24 @@ void fourWayPutDeviceInfo() {
 
 void decodeInput() {
   if (payloadIncoming) {
-    if (checkCrc(rxBuffer,cmdLength)) {
-      memcpy(payloadBuffer, rxBuffer, payloadSize);
+    if (checkCrc(fourWayRxBuffer,cmdLength)) {
+      memcpy(payloadBuffer, fourWayRxBuffer, payloadSize);
       payloadIncoming = false;
       fourWayPutChar(CMD_ACK_OK);
     }
     return;
   }
 
-  for (int i = 2; i < sizeof(rxBuffer); i++) {
-    if ((rxBuffer[i] == 0x7d) && (rxBuffer[i - 1] == 0xf4) && (rxBuffer[i - 2] == 0x69)) {
+  for (int i = 2; i < sizeof(fourWayRxBuffer); i++) {
+    if ((fourWayRxBuffer[i] == 0x7d) && (fourWayRxBuffer[i - 1] == 0xf4) && (fourWayRxBuffer[i - 2] == 0x69)) {
       fourWayPutDeviceInfo();
       return;
     }
   }
 
-  if (rxBuffer[0] == CMD_PROG_FLASH) {
+  if (fourWayRxBuffer[0] == CMD_PROG_FLASH) {
     cmdLength = 2;
-    if (checkCrc(rxBuffer,cmdLength)) {
+    if (checkCrc(fourWayRxBuffer,cmdLength)) {
       bootloaderFlashWrite((uint8_t*)payloadBuffer, sizeof(payloadBuffer),cmdAddress);
       fourWayPutChar(CMD_ACK_OK);
     }
@@ -107,11 +108,11 @@ void decodeInput() {
   }
 
   // CMD, 00 , cmdAddressHiByte, cmdAddressLoByte, crcLoByte ,crcHiByte
-  if (rxBuffer[0] == CMD_SET_ADDRESS) {
+  if (fourWayRxBuffer[0] == CMD_SET_ADDRESS) {
     cmdLength = 4;
-    if (checkCrc((uint8_t*)rxBuffer,cmdLength)) {
+    if (checkCrc((uint8_t*)fourWayRxBuffer,cmdLength)) {
       //ToDo
-      //cmdAddress = 0x08000000 + (rxBuffer[2] << 8 | rxBuffer[3]);
+      //cmdAddress = 0x08000000 + (fourWayRxBuffer[2] << 8 | fourWayRxBuffer[3]);
       cmdAddress = EEPROM_START_ADDRESS;
       cmdInvalid = 0;
       fourWayPutChar(CMD_ACK_OK);
@@ -120,13 +121,13 @@ void decodeInput() {
   }
 
   // for reading buffer rx buffer 0 = command byte.
-  if (rxBuffer[0] == CMD_SET_BUFFER) {
+  if (fourWayRxBuffer[0] == CMD_SET_BUFFER) {
     cmdLength = 4;
-    if (checkCrc((uint8_t*)rxBuffer,cmdLength)) {
-      if (rxBuffer[2] == 0x01) {
+    if (checkCrc((uint8_t*)fourWayRxBuffer,cmdLength)) {
+      if (fourWayRxBuffer[2] == 0x01) {
         payloadSize = 256;
       } else {
-        payloadSize = rxBuffer[3];
+        payloadSize = fourWayRxBuffer[3];
       }
       payloadIncoming = true;
       fourWaySetReceive();
@@ -134,33 +135,33 @@ void decodeInput() {
     return;
   }
 
-  if (rxBuffer[0] == CMD_KEEP_ALIVE) {
+  if (fourWayRxBuffer[0] == CMD_KEEP_ALIVE) {
     cmdLength = 2;
-    if (checkCrc((uint8_t*)rxBuffer,cmdLength)){
+    if (checkCrc((uint8_t*)fourWayRxBuffer,cmdLength)){
       //ToDo Nack
       fourWayPutChar(CMD_ACK_OK);
     }
     return;
   }
 
-  if (rxBuffer[0] == CMD_ERASE_FLASH) {
+  if (fourWayRxBuffer[0] == CMD_ERASE_FLASH) {
     cmdLength = 2;
-    if (checkCrc((uint8_t*)rxBuffer,cmdLength)) {
+    if (checkCrc((uint8_t*)fourWayRxBuffer,cmdLength)) {
       fourWayPutChar(CMD_ACK_OK);
     }
     return;
   }
 
-  if (rxBuffer[0] == CMD_READ_EEPROM) {
+  if (fourWayRxBuffer[0] == CMD_READ_EEPROM) {
     // noop
     return;
   }
 
   // for sending contents of flash memory at the memory location set in bootloader.c need to still set memory with data from set mem command
-  if (rxBuffer[0] == CMD_READ_FLASH_SIL) {
+  if (fourWayRxBuffer[0] == CMD_READ_FLASH_SIL) {
     cmdLength = 2;
-    if (checkCrc((uint8_t*)rxBuffer,cmdLength)) {
-      uint16_t dataBufferSize = rxBuffer[1];
+    if (checkCrc((uint8_t*)fourWayRxBuffer,cmdLength)) {
+      uint16_t dataBufferSize = fourWayRxBuffer[1];
       if (dataBufferSize == 0) {
         dataBufferSize = 256;
       }
@@ -169,8 +170,8 @@ void decodeInput() {
       memset(dataBuffer, 0, sizeof(dataBuffer));
       bootloaderFlashRead((uint8_t*)dataBuffer , cmdAddress, dataBufferSize);
       makeCrc(dataBuffer,dataBufferSize);
-      dataBuffer[dataBufferSize] = CRC_16.bytes[0];
-      dataBuffer[dataBufferSize + 1] = CRC_16.bytes[1];
+      dataBuffer[dataBufferSize] = cmdCrc16.bytes[0];
+      dataBuffer[dataBufferSize + 1] = cmdCrc16.bytes[1];
       dataBuffer[dataBufferSize + 2] = CMD_ACK_OK;
       fourWayPutBuffer(dataBuffer, dataBufferSize+3);
     }
@@ -183,7 +184,7 @@ void decodeInput() {
 
 void fourWayGetChar() {
   fourWaySetReceive();
-  rxByte=0;
+  fourWayRxByte=0;
 
   while(!(INPUT_GPIO->IDR & INPUT_PIN)) {
     // wait for rx to go high
@@ -201,7 +202,7 @@ void fourWayGetChar() {
   uint8_t bitIndex = 0;
   while (bitIndex < 8) {
     delayMicroseconds(FOUR_WAY_BIT_TIME);
-    rxByte = rxByte | ((( INPUT_GPIO->IDR & INPUT_PIN)) >> FOUR_WAY_SHIFT_AMOUNT) << bitIndex;
+    fourWayRxByte = fourWayRxByte | ((( INPUT_GPIO->IDR & INPUT_PIN)) >> FOUR_WAY_SHIFT_AMOUNT) << bitIndex;
     bitIndex++;
   }
   // wait till the stop bit time begins
@@ -236,14 +237,14 @@ void fourWayPutChar(char data) {
 
 void fourWayGetBuffer() {
   fourWayCharReceived = false;
-  memset(rxBuffer, 0, sizeof(rxBuffer));
+  memset(fourWayRxBuffer, 0, sizeof(fourWayRxBuffer));
 
-  for(int i = 0; i < sizeof(rxBuffer); i++){
+  for(int i = 0; i < sizeof(fourWayRxBuffer); i++){
     fourWayGetChar();
     if(TIM2->CNT >= 250) {
       break;
     }else{
-      rxBuffer[i] = rxByte;
+      fourWayRxBuffer[i] = fourWayRxByte;
       if(i == 257) {
         cmdInvalid += 20;       // needs one hundred to trigger a jump but will be reset on next set cmdAddress commmand
       }

@@ -65,7 +65,7 @@
 typedef union __attribute__ ((packed)) {
   uint8_t bytes[2];
   uint16_t word;
-} uint8_16_u;
+} crc_16_u;
 
 
 void delayMicroseconds(uint32_t micros);
