@@ -269,8 +269,8 @@ int main(void) {
 
   systemClockConfig();
   systemGpioInit();
-  ledInit();
   systemTim2Init();
+  ledInit();
   ledOff();
 
   while (true) {
