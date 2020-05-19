@@ -83,33 +83,9 @@ void fourWayPutDeviceInfo() {
 }
 
 void decodeInput() {
-  if(rxBuffer[20] == 0x7d) {
-    if(rxBuffer[12] == 13 && rxBuffer[13] == 66) {
-      fourWayPutDeviceInfo();
-      rxBuffer[20]= 0;
-    }
-    return;
-  }
-  if(rxBuffer[40] == 0x7d) {
-    if(rxBuffer[32] == 13 && rxBuffer[33] == 66) {
-      fourWayPutDeviceInfo();
-      rxBuffer[20]= 0;
-    }
-    return;
-  }
 
-  if(rxBuffer[0] == CMD_PROG_FLASH) {
-    cmdLength = 2;
-
-    if(checkCrc(rxBuffer,cmdLength)) {
-      bootloaderFlashWrite((uint8_t*)payloadBuffer, sizeof(payloadBuffer),cmdAddress);
-      fourWayPutChar(ACK_CMD_OK);
-      return;
-    }
-  }
-
-  if(payloadIncoming) {
-    if(checkCrc(rxBuffer,cmdLength)) {
+  if (payloadIncoming) {
+    if (checkCrc(rxBuffer,cmdLength)) {
       memcpy(payloadBuffer, rxBuffer, payloadSize);
       payloadIncoming = false;
       fourWayPutChar(ACK_CMD_OK);
@@ -117,12 +93,29 @@ void decodeInput() {
     }
   }
 
+  for (int i = 2; i < sizeof(rxBuffer); i++) {
+    if ((rxBuffer[i] == 0x7d) && (rxBuffer[i - 1] == 0xf4) && (rxBuffer[i - 2] == 0x69)) {
+      fourWayPutDeviceInfo();
+      return;
+    }
+  }
+
+  if (rxBuffer[0] == CMD_PROG_FLASH) {
+    cmdLength = 2;
+
+    if (checkCrc(rxBuffer,cmdLength)) {
+      bootloaderFlashWrite((uint8_t*)payloadBuffer, sizeof(payloadBuffer),cmdAddress);
+      fourWayPutChar(ACK_CMD_OK);
+      return;
+    }
+  }
+
   // CMD, 00 , cmdAddressHiByte, cmdAddressLoByte, crcLoByte ,crcHiByte
-  if(rxBuffer[0] == CMD_SET_ADDRESS){
+  if (rxBuffer[0] == CMD_SET_ADDRESS) {
     cmdLength = 4;  // package without 2 byte crc
     cmdAddress = 0x08000000 + (rxBuffer[2] << 8 | rxBuffer[3]);
 
-    if(checkCrc((uint8_t*)rxBuffer,cmdLength)) {
+    if (checkCrc((uint8_t*)rxBuffer,cmdLength)) {
       cmdInvalid = 0;
       fourWayPutChar(ACK_CMD_OK);
     }
@@ -131,10 +124,10 @@ void decodeInput() {
   }
 
   // for reading buffer rx buffer 0 = command byte.
-  if(rxBuffer[0] == CMD_SET_BUFFER) {
+  if (rxBuffer[0] == CMD_SET_BUFFER) {
     cmdLength = 4;  // package without 2 byte crc
-      if(checkCrc((uint8_t*)rxBuffer,cmdLength)) {        // no ack with command set buffer;
-        if(rxBuffer[2] == 0x01) {
+      if (checkCrc((uint8_t*)rxBuffer,cmdLength)) {        // no ack with command set buffer;
+        if (rxBuffer[2] == 0x01) {
           payloadSize = 256;                          // if nothing in this buffer
         } else {
           payloadSize = rxBuffer[3];
@@ -145,38 +138,39 @@ void decodeInput() {
      }
   }
 
-  if(rxBuffer[0] == CMD_KEEP_ALIVE) {
+  if (rxBuffer[0] == CMD_KEEP_ALIVE) {
     cmdLength = 2;
-    if(checkCrc((uint8_t*)rxBuffer,cmdLength)){
+    if (checkCrc((uint8_t*)rxBuffer,cmdLength)){
       //ToDo Nack
       fourWayPutChar(ACK_CMD_OK);
     }
     return;
   }
 
-  if(rxBuffer[0] == CMD_ERASE_FLASH){
+  if (rxBuffer[0] == CMD_ERASE_FLASH) {
     cmdLength = 2;
-    if(checkCrc((uint8_t*)rxBuffer,cmdLength)){
+    if (checkCrc((uint8_t*)rxBuffer,cmdLength)) {
       fourWayPutChar(ACK_CMD_OK);
     }
     return;
   }
 
-  if(rxBuffer[0] == CMD_READ_EEPROM) {
+  if (rxBuffer[0] == CMD_READ_EEPROM) {
     // noop
+    return;
   }
 
-
   // for sending contents of flash memory at the memory location set in bootloader.c need to still set memory with data from set mem command
-  if(rxBuffer[0] == CMD_READ_FLASH_SIL) {
+  if (rxBuffer[0] == CMD_READ_FLASH_SIL) {
     cmdLength = 2;
     uint16_t dataBufferSize = rxBuffer[1];
-    if(dataBufferSize == 0){
+    if (dataBufferSize == 0) {
       dataBufferSize = 256;
     }
 
     if (checkCrc((uint8_t*)rxBuffer,cmdLength)) {
-      uint8_t dataBuffer[dataBufferSize + 3];        // make buffer 3 larger to fit CRC and ACK
+      uint8_t dataBuffer[dataBufferSize + 3];
+
       memset(dataBuffer, 0, sizeof(dataBuffer));
       bootloaderFlashRead((uint8_t*)dataBuffer , cmdAddress, dataBufferSize);
       makeCrc(dataBuffer,dataBufferSize);
@@ -207,18 +201,17 @@ void fourWayGetChar() {
       return;
     }
   }
+  // wait to get the center of bit time
+  delayMicroseconds(FOUR_WAY_BIT_TIME_HALF);
 
-  delayMicroseconds(FOUR_WAY_BIT_TIME_HALF); // wait to get the center of bit time
-
-  int bits_to_read = 0;
-  while (bits_to_read < 8) {
+  uint8_t bitIndex = 0;
+  while (bitIndex < 8) {
     delayMicroseconds(FOUR_WAY_BIT_TIME);
-    rxByte = rxByte | ((( INPUT_GPIO->IDR & INPUT_PIN)) >> FOUR_WAY_SHIFT_AMOUNT) << bits_to_read;
-    bits_to_read++;
+    rxByte = rxByte | ((( INPUT_GPIO->IDR & INPUT_PIN)) >> FOUR_WAY_SHIFT_AMOUNT) << bitIndex;
+    bitIndex++;
   }
-
-  delayMicroseconds(FOUR_WAY_BIT_TIME_HALF); // wait till the stop bit time begins
-
+  // wait till the stop bit time begins
+  delayMicroseconds(FOUR_WAY_BIT_TIME_HALF);
   fourWayCharReceived = true;
 }
 
@@ -227,21 +220,23 @@ void fourWayPutChar(char data) {
   fourWaySetTransmit();
   LED_OFF(LED_RED);
   LED_ON(LED_BLUE);
-  INPUT_GPIO->BRR = INPUT_PIN;; // initiate start bit
-  char bits_to_read = 0;
-  while (bits_to_read < 8) {
+  // start bit
+  INPUT_GPIO->BRR = INPUT_PIN;
+  uint8_t bitIndex = 0;
+  while (bitIndex < 8) {
     delayMicroseconds(FOUR_WAY_BIT_TIME);
     if (data & 0x01) {
       INPUT_GPIO->BSRR = INPUT_PIN;
     }else{
       INPUT_GPIO->BRR = INPUT_PIN;
     }
-    bits_to_read++;
+    bitIndex++;
     data = data >> 1;
   }
 
   delayMicroseconds(FOUR_WAY_BIT_TIME);
-  INPUT_GPIO->BSRR = INPUT_PIN; // write the stop bit
+  // stop bit
+  INPUT_GPIO->BSRR = INPUT_PIN;
   LED_OFF(LED_BLUE);
   fourWaySetReceive();
 }
@@ -252,12 +247,12 @@ void fourWayGetBuffer() {
 
   for(int i = 0; i < sizeof(rxBuffer); i++){
     fourWayGetChar();
-    if(TIM2->CNT >=250) {
+    if(TIM2->CNT >= 250) {
       break;
     }else{
       rxBuffer[i] = rxByte;
       if(i == 257) {
-        cmdInvalid+=20;       // needs one hundred to trigger a jump but will be reset on next set cmdAddress commmand
+        cmdInvalid += 20;       // needs one hundred to trigger a jump but will be reset on next set cmdAddress commmand
       }
     }
   }
