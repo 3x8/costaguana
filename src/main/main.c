@@ -1,8 +1,8 @@
 #include "main.h"
 
-uint8_t deviceInfo[8] = {0x34,0x37,0x31,0x64,0x1f,0x06,0x06,0x01};  // stm32 device info
+//uint8_t deviceInfo[8] = {0x34,0x37,0x31,0x64,0x1f,0x06,0x06,0x01};  // stm32 device info
 //uint8_t deviceInfo[8] = {0x34,0x37,0x31,0x64,0xf3,0x90,0x06,0x01};  // silabs device id
-//uint8_t deviceInfo[8] = {0x34,0x37,0x31,0x64,0xe8,0xb2,0x06,0x01};  // blheli_s identifier
+uint8_t deviceInfo[8] = {0x34,0x37,0x31,0x64,0xe8,0xb2,0x06,0x01};  // blheli_s identifier
 
 
 char rxByte = 0;
@@ -30,7 +30,7 @@ void jump() {
 
   __disable_irq();
   JumpAddress = *(__IO uint32_t*) (APPLICATION_ADDRESS + 4);
-  uint8_t value = *(uint8_t*)(EEPROM_ADDRESS);
+  uint8_t value = *(uint8_t*)(EEPROM_START_ADDRESS);
 
   //ToDo
   // check first byte of eeprom to see if its programmed, if not do not jump
@@ -112,7 +112,9 @@ void decodeInput() {
   if (rxBuffer[0] == CMD_SET_ADDRESS) {
     cmdLength = 4;
     if (checkCrc((uint8_t*)rxBuffer,cmdLength)) {
-      cmdAddress = 0x08000000 + (rxBuffer[2] << 8 | rxBuffer[3]);
+      //ToDo
+      //cmdAddress = 0x08000000 + (rxBuffer[2] << 8 | rxBuffer[3]);
+      cmdAddress = EEPROM_START_ADDRESS;
       cmdInvalid = 0;
       fourWayPutChar(ACK_CMD_OK);
     }

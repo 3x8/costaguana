@@ -30,8 +30,20 @@
 #define FOUR_WAY_BIT_TIME_HALF (500000/FOUR_WAY_BAUD_RATE)
 #define FOUR_WAY_SHIFT_AMOUNT 2
 
-#define APPLICATION_ADDRESS (uint32_t)0x08002000               //ToDo 8k
-#define EEPROM_ADDRESS  (uint32_t)0x08007C00
+
+//#define FLASH_PAGE_SIZE         0x400
+#if defined(STM32F030x6) || defined(STM32F030x8) || defined(STM32F031x6) || defined(STM32F038xx) || defined(STM32F051x8) || defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F058xx) || defined(STM32F070x6)
+  #define FLASH_PAGE_SIZE          0x400U
+#endif
+#if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx) || defined(STM32F070xB) || defined(STM32F091xC) || defined(STM32F098xx) || defined(STM32F030xC)
+  #define FLASH_PAGE_SIZE          0x800U
+#endif
+
+#define FLASH_PAGE_COUNT        64
+#define FLASH_CONFIG_SIZE       0x800
+#define APPLICATION_ADDRESS     (uint32_t)0x08002000
+#define EEPROM_START_ADDRESS    (0x08000000 + (uint32_t)((FLASH_PAGE_SIZE * FLASH_PAGE_COUNT) - FLASH_CONFIG_SIZE))
+
 
 // USE_SERIAL_4WAY_BLHELI_BOOTLOADER
 #define CMD_RUN               0x00
