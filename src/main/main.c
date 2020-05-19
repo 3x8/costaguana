@@ -83,14 +83,13 @@ void fourWayPutDeviceInfo() {
 }
 
 void decodeInput() {
-
   if (payloadIncoming) {
     if (checkCrc(rxBuffer,cmdLength)) {
       memcpy(payloadBuffer, rxBuffer, payloadSize);
       payloadIncoming = false;
       fourWayPutChar(ACK_CMD_OK);
-      return;
     }
+    return;
   }
 
   for (int i = 2; i < sizeof(rxBuffer); i++) {
@@ -102,40 +101,37 @@ void decodeInput() {
 
   if (rxBuffer[0] == CMD_PROG_FLASH) {
     cmdLength = 2;
-
     if (checkCrc(rxBuffer,cmdLength)) {
       bootloaderFlashWrite((uint8_t*)payloadBuffer, sizeof(payloadBuffer),cmdAddress);
       fourWayPutChar(ACK_CMD_OK);
-      return;
     }
+    return;
   }
 
   // CMD, 00 , cmdAddressHiByte, cmdAddressLoByte, crcLoByte ,crcHiByte
   if (rxBuffer[0] == CMD_SET_ADDRESS) {
-    cmdLength = 4;  // package without 2 byte crc
-    cmdAddress = 0x08000000 + (rxBuffer[2] << 8 | rxBuffer[3]);
-
+    cmdLength = 4;
     if (checkCrc((uint8_t*)rxBuffer,cmdLength)) {
+      cmdAddress = 0x08000000 + (rxBuffer[2] << 8 | rxBuffer[3]);
       cmdInvalid = 0;
       fourWayPutChar(ACK_CMD_OK);
     }
-
     return;
   }
 
   // for reading buffer rx buffer 0 = command byte.
   if (rxBuffer[0] == CMD_SET_BUFFER) {
-    cmdLength = 4;  // package without 2 byte crc
-      if (checkCrc((uint8_t*)rxBuffer,cmdLength)) {        // no ack with command set buffer;
-        if (rxBuffer[2] == 0x01) {
-          payloadSize = 256;                          // if nothing in this buffer
-        } else {
-          payloadSize = rxBuffer[3];
-        }
-        payloadIncoming = true;
-        fourWaySetReceive();
-        return;
-     }
+    cmdLength = 4;
+    if (checkCrc((uint8_t*)rxBuffer,cmdLength)) {
+      if (rxBuffer[2] == 0x01) {
+        payloadSize = 256;
+      } else {
+        payloadSize = rxBuffer[3];
+      }
+      payloadIncoming = true;
+      fourWaySetReceive();
+    }
+    return;
   }
 
   if (rxBuffer[0] == CMD_KEEP_ALIVE) {
@@ -163,12 +159,11 @@ void decodeInput() {
   // for sending contents of flash memory at the memory location set in bootloader.c need to still set memory with data from set mem command
   if (rxBuffer[0] == CMD_READ_FLASH_SIL) {
     cmdLength = 2;
-    uint16_t dataBufferSize = rxBuffer[1];
-    if (dataBufferSize == 0) {
-      dataBufferSize = 256;
-    }
-
     if (checkCrc((uint8_t*)rxBuffer,cmdLength)) {
+      uint16_t dataBufferSize = rxBuffer[1];
+      if (dataBufferSize == 0) {
+        dataBufferSize = 256;
+      }
       uint8_t dataBuffer[dataBufferSize + 3];
 
       memset(dataBuffer, 0, sizeof(dataBuffer));
@@ -178,14 +173,13 @@ void decodeInput() {
       dataBuffer[dataBufferSize + 1] = CRC_16.bytes[1];
       dataBuffer[dataBufferSize + 2] = ACK_CMD_OK;
       fourWayPutBuffer(dataBuffer, dataBufferSize+3);
-      return;
     }
+    return;
   }
 
   cmdInvalid++;
   fourWayPutChar(ACK_CMD_KO);
 }
-
 
 void fourWayGetChar() {
   fourWaySetReceive();
@@ -214,7 +208,6 @@ void fourWayGetChar() {
   delayMicroseconds(FOUR_WAY_BIT_TIME_HALF);
   fourWayCharReceived = true;
 }
-
 
 void fourWayPutChar(char data) {
   fourWaySetTransmit();
@@ -267,11 +260,12 @@ void fourWayPutBuffer(uint8_t *data, int cmdLength) {
   //fourWayPutChar(10);     // for new line
 }
 
+
 int main(void) {
   LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_SYSCFG);
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
-
-  FLASH->ACR |= FLASH_ACR_PRFTBE;   // prefetch buffer enable
+  // prefetch buffer enable
+  FLASH->ACR |= FLASH_ACR_PRFTBE;
 
   systemClockConfig();
   systemGpioInit();
