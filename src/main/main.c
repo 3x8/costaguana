@@ -68,11 +68,11 @@ bool checkCrc(uint8_t* pBuffer, uint16_t length) {
   }
 }
 
-void fourWaySetReceive() {
+void fourWayConfigReceive() {
   LL_GPIO_SetPinMode(INPUT_GPIO, INPUT_PIN, LL_GPIO_MODE_INPUT);
 }
 
-void fourWaySetTransmit() {
+void fourWayConfigTransmit() {
   LL_GPIO_SetPinMode(INPUT_GPIO, INPUT_PIN, LL_GPIO_MODE_OUTPUT);
 }
 
@@ -130,7 +130,7 @@ void decodeInput() {
         payloadSize = fourWayRxBuffer[3];
       }
       payloadIncoming = true;
-      fourWaySetReceive();
+      fourWayConfigReceive();
     }
     return;
   }
@@ -183,7 +183,7 @@ void decodeInput() {
 }
 
 void fourWayGetChar() {
-  fourWaySetReceive();
+  fourWayConfigReceive();
   fourWayRxByte=0;
 
   while(!(INPUT_GPIO->IDR & INPUT_PIN)) {
@@ -211,7 +211,7 @@ void fourWayGetChar() {
 }
 
 void fourWayPutChar(char data) {
-  fourWaySetTransmit();
+  fourWayConfigTransmit();
   LED_OFF(LED_RED);
   LED_ON(LED_BLUE);
   // start bit
@@ -232,7 +232,7 @@ void fourWayPutChar(char data) {
   // stop bit
   INPUT_GPIO->BSRR = INPUT_PIN;
   LED_OFF(LED_BLUE);
-  fourWaySetReceive();
+  fourWayConfigReceive();
 }
 
 void fourWayGetBuffer() {
