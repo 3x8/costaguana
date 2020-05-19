@@ -70,8 +70,8 @@ typedef union __attribute__ ((packed)) {
 
 void delayMicroseconds(uint32_t micros);
 void jump();
-void makeCrc(uint8_t* pBuff, uint16_t length);
-bool checkCrc(uint8_t* pBuff, uint16_t length);
+void crcCalculate(uint8_t* pBuff, uint16_t length);
+bool crcCompare(uint8_t* pBuff, uint16_t length);
 void fourWayConfigReceive();
 void fourWayConfigTransmit();
 void fourWayPutDeviceInfo();

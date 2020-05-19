@@ -43,7 +43,7 @@ void jump() {
   JumpToApplication();
 }
 
-void makeCrc(uint8_t* pBuffer, uint16_t length) {
+void crcCalculate(uint8_t* pBuffer, uint16_t length) {
   cmdCrc16.word = 0;
   for (int i = 0; i < length; i++) {
     uint8_t xb = pBuffer[i];
@@ -59,8 +59,8 @@ void makeCrc(uint8_t* pBuffer, uint16_t length) {
    }
 }
 
-bool checkCrc(uint8_t* pBuffer, uint16_t length) {
-  makeCrc(pBuffer,length);
+bool crcCompare(uint8_t* pBuffer, uint16_t length) {
+  crcCalculate(pBuffer,length);
   if ((cmdCrc16.bytes[0] == pBuffer[length])  && (cmdCrc16.bytes[1] == pBuffer[length+1])) {
     return (true);
   } else {
@@ -83,7 +83,7 @@ void fourWayPutDeviceInfo() {
 
 void decodeInput() {
   if (payloadIncoming) {
-    if (checkCrc(fourWayRxBuffer,cmdLength)) {
+    if (crcCompare(fourWayRxBuffer,cmdLength)) {
       memcpy(payloadBuffer, fourWayRxBuffer, payloadSize);
       payloadIncoming = false;
       fourWayPutChar(CMD_ACK_OK);
@@ -100,7 +100,7 @@ void decodeInput() {
 
   if (fourWayRxBuffer[0] == CMD_PROG_FLASH) {
     cmdLength = 2;
-    if (checkCrc(fourWayRxBuffer,cmdLength)) {
+    if (crcCompare(fourWayRxBuffer,cmdLength)) {
       bootloaderFlashWrite((uint8_t*)payloadBuffer, sizeof(payloadBuffer),cmdAddress);
       fourWayPutChar(CMD_ACK_OK);
     }
@@ -110,7 +110,7 @@ void decodeInput() {
   // CMD, 00 , cmdAddressHiByte, cmdAddressLoByte, crcLoByte ,crcHiByte
   if (fourWayRxBuffer[0] == CMD_SET_ADDRESS) {
     cmdLength = 4;
-    if (checkCrc((uint8_t*)fourWayRxBuffer,cmdLength)) {
+    if (crcCompare((uint8_t*)fourWayRxBuffer,cmdLength)) {
       //ToDo
       //cmdAddress = 0x08000000 + (fourWayRxBuffer[2] << 8 | fourWayRxBuffer[3]);
       cmdAddress = EEPROM_START_ADDRESS;
@@ -123,7 +123,7 @@ void decodeInput() {
   // for reading buffer rx buffer 0 = command byte.
   if (fourWayRxBuffer[0] == CMD_SET_BUFFER) {
     cmdLength = 4;
-    if (checkCrc((uint8_t*)fourWayRxBuffer,cmdLength)) {
+    if (crcCompare((uint8_t*)fourWayRxBuffer,cmdLength)) {
       if (fourWayRxBuffer[2] == 0x01) {
         payloadSize = 256;
       } else {
@@ -137,7 +137,7 @@ void decodeInput() {
 
   if (fourWayRxBuffer[0] == CMD_KEEP_ALIVE) {
     cmdLength = 2;
-    if (checkCrc((uint8_t*)fourWayRxBuffer,cmdLength)){
+    if (crcCompare((uint8_t*)fourWayRxBuffer,cmdLength)){
       //ToDo Nack
       fourWayPutChar(CMD_ACK_OK);
     }
@@ -146,7 +146,7 @@ void decodeInput() {
 
   if (fourWayRxBuffer[0] == CMD_ERASE_FLASH) {
     cmdLength = 2;
-    if (checkCrc((uint8_t*)fourWayRxBuffer,cmdLength)) {
+    if (crcCompare((uint8_t*)fourWayRxBuffer,cmdLength)) {
       fourWayPutChar(CMD_ACK_OK);
     }
     return;
@@ -160,7 +160,7 @@ void decodeInput() {
   // for sending contents of flash memory at the memory location set in bootloader.c need to still set memory with data from set mem command
   if (fourWayRxBuffer[0] == CMD_READ_FLASH_SIL) {
     cmdLength = 2;
-    if (checkCrc((uint8_t*)fourWayRxBuffer,cmdLength)) {
+    if (crcCompare((uint8_t*)fourWayRxBuffer,cmdLength)) {
       uint16_t dataBufferSize = fourWayRxBuffer[1];
       if (dataBufferSize == 0) {
         dataBufferSize = 256;
@@ -169,7 +169,7 @@ void decodeInput() {
 
       memset(dataBuffer, 0, sizeof(dataBuffer));
       bootloaderFlashRead((uint8_t*)dataBuffer , cmdAddress, dataBufferSize);
-      makeCrc(dataBuffer,dataBufferSize);
+      crcCalculate(dataBuffer,dataBufferSize);
       dataBuffer[dataBufferSize] = cmdCrc16.bytes[0];
       dataBuffer[dataBufferSize + 1] = cmdCrc16.bytes[1];
       dataBuffer[dataBufferSize + 2] = CMD_ACK_OK;
