@@ -30,12 +30,6 @@ void jump() {
 
   __disable_irq();
   JumpAddress = *(__IO uint32_t*)(APPLICATION_ADDRESS + 4);
-  uint8_t value = *(uint8_t*)(EEPROM_START_ADDRESS);
-
-  if (value != EEPROM_CONF_VERSION) {
-    cmdInvalid = 0;
-    return;
-  }
 
   JumpToApplication = (pFunction) JumpAddress;
   __set_MSP(*(__IO uint32_t*) APPLICATION_ADDRESS);
@@ -111,8 +105,8 @@ void decodeInput() {
     cmdLength = 4;
     if (crcCompare((uint8_t*)fourWayRxBuffer,cmdLength)) {
       //ToDo
-      cmdAddress = 0x08000000 + (fourWayRxBuffer[2] << 8 | fourWayRxBuffer[3]);
       //cmdAddress = EEPROM_START_ADDRESS;
+      cmdAddress = 0x08000000 + (fourWayRxBuffer[2] << 8 | fourWayRxBuffer[3]);
       cmdInvalid = 0;
       fourWayPutChar(CMD_ACK_OK);
     }
