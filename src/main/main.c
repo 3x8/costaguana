@@ -81,6 +81,9 @@ void decodeInput() {
       payloadIncoming = false;
       fourWayPutChar(CMD_ACK_OK);
     }
+    //debug
+    payloadIncoming = false;
+    fourWayPutChar(CMD_ACK_CRC);
     return;
   }
 
@@ -121,9 +124,6 @@ void decodeInput() {
         payloadSize = 256;
       } else {
         payloadSize = fourWayRxBuffer[3];
-      }
-      if (payloadSize == 0) {
-        payloadSize = 256;
       }
       payloadIncoming = true;
       fourWayConfigReceive();
