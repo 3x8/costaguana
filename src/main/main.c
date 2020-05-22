@@ -98,7 +98,7 @@ void decodeInput() {
   if (fourWayRxBuffer[0] == CMD_PROG_FLASH) {
     cmdLength = 2;
     if (crcCompare(fourWayRxBuffer,cmdLength)) {
-      bootloaderFlashWrite((uint8_t*)payloadBuffer, sizeof(payloadBuffer),cmdAddress);
+      bootloaderFlashWrite((uint8_t*)payloadBuffer, payloadSize,cmdAddress);
       fourWayPutChar(CMD_ACK_OK);
     }
     return;
