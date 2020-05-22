@@ -107,11 +107,10 @@ void decodeInput() {
   if (fourWayRxBuffer[0] == CMD_SET_ADDRESS) {
     cmdLength = 4;
     if (crcCompare((uint8_t*)fourWayRxBuffer,cmdLength)) {
-      //ToDo
-      //cmdAddress = EEPROM_START_ADDRESS;
       cmdAddress = 0x08000000 + (fourWayRxBuffer[2] << 8 | fourWayRxBuffer[3]);
       cmdInvalid = 0;
-      fourWayPutChar(CMD_ACK_OK);
+      //debug
+      //fourWayPutChar(CMD_ACK_OK);
     }
     return;
   }
