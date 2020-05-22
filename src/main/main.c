@@ -122,6 +122,9 @@ void decodeInput() {
       } else {
         payloadSize = fourWayRxBuffer[3];
       }
+      if (payloadSize == 0) {
+        payloadSize = 256;
+      }
       payloadIncoming = true;
       fourWayConfigReceive();
     }
