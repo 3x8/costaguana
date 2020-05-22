@@ -109,8 +109,7 @@ void decodeInput() {
     if (crcCompare((uint8_t*)fourWayRxBuffer,cmdLength)) {
       cmdAddress = 0x08000000 + (fourWayRxBuffer[2] << 8 | fourWayRxBuffer[3]);
       cmdInvalid = 0;
-      //debug
-      //fourWayPutChar(CMD_ACK_OK);
+      fourWayPutChar(CMD_ACK_OK);
     }
     return;
   }
