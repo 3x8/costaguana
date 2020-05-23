@@ -133,7 +133,7 @@ void decodeInput() {
     cmdLength = 2;
     if (crcCompare((uint8_t*)fourWayRxBuffer,cmdLength)){
       //ToDo Nack
-      fourWayPutChar(CMD_ACK_OK);
+      fourWayPutChar(CMD_ACK_KO);
     }
     return;
   }
