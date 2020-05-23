@@ -76,15 +76,14 @@ void fourWayPutDeviceInfo() {
 
 void decodeInput() {
   if (payloadIncoming) {
+    //debug
+    payloadIncoming = false;
     if (crcCompare(fourWayRxBuffer,cmdLength)) {
       memcpy(payloadBuffer, fourWayRxBuffer, payloadSize);
       fourWayPutChar(CMD_ACK_OK);
     } else {
       fourWayPutChar(CMD_ACK_CRC);
     }
-    //debug
-    payloadIncoming = false;
-
     return;
   }
 
@@ -119,12 +118,12 @@ void decodeInput() {
   if (fourWayRxBuffer[0] == CMD_SET_BUFFER) {
     cmdLength = 4;
     if (crcCompare((uint8_t*)fourWayRxBuffer,cmdLength)) {
+      payloadIncoming = true;
       if (fourWayRxBuffer[2] == 0x01) {
         payloadSize = 256;
       } else {
         payloadSize = fourWayRxBuffer[3];
       }
-      payloadIncoming = true;
       fourWayConfigReceive();
     }
     return;
