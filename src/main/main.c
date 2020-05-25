@@ -78,7 +78,7 @@ void decodeInput() {
   if (payloadIncoming) {
     //debug
     payloadIncoming = false;
-    if (crcCompare(fourWayRxBuffer,cmdLength)) {
+    if (crcCompare(fourWayRxBuffer,payloadSize)) {
       memcpy(payloadBuffer, fourWayRxBuffer, payloadSize);
       fourWayPutChar(CMD_ACK_OK);
     } else {
