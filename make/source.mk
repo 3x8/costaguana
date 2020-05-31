@@ -17,7 +17,7 @@ VPATH               := $(VPATH):$(SRC_DIR)
 SPEED_OPTIMISED_SRC := $(SPEED_OPTIMISED_SRC) \
                     $(TARGET_DIR_SRC)\
                     main.c \
-                    bootloader/bootloader.c \
+                    system/bootloader.c \
                     system/system.c \
                     system/fourWay.c \
                     system/led.c

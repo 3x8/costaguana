@@ -18,7 +18,7 @@
 
 #include "target.h"
 #include "version/version.h"
-#include "bootloader/bootloader.h"
+#include "system/bootloader.h"
 #include "system/system.h"
 #include "system/led.h"
 #include "system/fourWay.h"
