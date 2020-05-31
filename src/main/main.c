@@ -1,6 +1,6 @@
 #include "main.h"
 
-extern uint16_t cmdInvalid;
+extern uint16_t fourWayCmdInvalid;
 
 
 int main(void) {
@@ -18,7 +18,7 @@ int main(void) {
 
   while (true) {
     fourWayGetBuffer();
-    if (cmdInvalid > 100) {
+    if (fourWayCmdInvalid > 100) {
       LED_ON(LED_RED);
       bootloaderJumpToApplication();
     }

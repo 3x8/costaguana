@@ -32,7 +32,7 @@ typedef union __attribute__ ((packed)) {
   uint16_t word;
 } crc_16_u;
 
-extern uint16_t cmdInvalid;
+extern uint16_t fourWayCmdInvalid;
 
 void delayMicroseconds(uint32_t micros);
 void fourWayCrcCalculate(uint8_t* pBuff, uint16_t length);

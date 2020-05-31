@@ -7,10 +7,10 @@ uint8_t deviceInfo[8] = {0x34,0x37,0x31,0x64,0x1f,0x06,0x06,0x01};  // stm32 dev
 char fourWayRxByte = 0;
 bool fourWayCharReceived = false;
 uint8_t fourWayRxBuffer[258];
-uint8_t payloadBuffer[256];
-uint16_t payloadSize;
-bool payloadIncoming = false;
-uint16_t cmdInvalid = 0;
+uint8_t fourWayPayloadBuffer[256];
+uint16_t fourWayPayloadSize;
+bool fourWayPayloadIncoming = false;
+uint16_t fourWayCmdInvalid = 0;
 
 uint32_t cmdAddress;
 uint16_t cmdLength;
@@ -62,11 +62,11 @@ void fourWayPutDeviceInfo() {
 }
 
 void fourWayDecodeInput() {
-  if (payloadIncoming) {
+  if (fourWayPayloadIncoming) {
     //debug
-    payloadIncoming = false;
-    if (fourWayCrcCompare(fourWayRxBuffer,payloadSize)) {
-      memcpy(payloadBuffer, fourWayRxBuffer, payloadSize);
+    fourWayPayloadIncoming = false;
+    if (fourWayCrcCompare(fourWayRxBuffer,fourWayPayloadSize)) {
+      memcpy(fourWayPayloadBuffer, fourWayRxBuffer, fourWayPayloadSize);
       fourWayPutChar(CMD_ACK_OK);
     } else {
       fourWayPutChar(CMD_ACK_CRC);
@@ -84,7 +84,7 @@ void fourWayDecodeInput() {
   if (fourWayRxBuffer[0] == CMD_PROG_FLASH) {
     cmdLength = 2;
     if (fourWayCrcCompare(fourWayRxBuffer,cmdLength)) {
-      bootloaderFlashWrite((uint8_t*)payloadBuffer, payloadSize,cmdAddress);
+      bootloaderFlashWrite((uint8_t*)fourWayPayloadBuffer, fourWayPayloadSize,cmdAddress);
       fourWayPutChar(CMD_ACK_OK);
     }
     return;
@@ -95,7 +95,7 @@ void fourWayDecodeInput() {
     cmdLength = 4;
     if (fourWayCrcCompare((uint8_t*)fourWayRxBuffer,cmdLength)) {
       cmdAddress = 0x08000000 + (fourWayRxBuffer[2] << 8 | fourWayRxBuffer[3]);
-      cmdInvalid = 0;
+      fourWayCmdInvalid = 0;
       fourWayPutChar(CMD_ACK_OK);
     }
     return;
@@ -105,11 +105,11 @@ void fourWayDecodeInput() {
   if (fourWayRxBuffer[0] == CMD_SET_BUFFER) {
     cmdLength = 4;
     if (fourWayCrcCompare((uint8_t*)fourWayRxBuffer,cmdLength)) {
-      payloadIncoming = true;
+      fourWayPayloadIncoming = true;
       if (fourWayRxBuffer[2] == 0x01) {
-        payloadSize = 256;
+        fourWayPayloadSize = 256;
       } else {
-        payloadSize = fourWayRxBuffer[3];
+        fourWayPayloadSize = fourWayRxBuffer[3];
       }
       fourWayConfigReceive();
     }
@@ -159,7 +159,7 @@ void fourWayDecodeInput() {
     return;
   }
 
-  cmdInvalid++;
+  fourWayCmdInvalid++;
   fourWayPutChar(CMD_ACK_KO);
 }
 
@@ -227,7 +227,7 @@ void fourWayGetBuffer() {
     } else {
       fourWayRxBuffer[i] = fourWayRxByte;
       if (i == 257) {
-        cmdInvalid += 20;       // needs one hundred to trigger a jumpi but will be reset on next set cmdAddress commmand
+        fourWayCmdInvalid += 20;       // needs one hundred to trigger a jumpi but will be reset on next set cmdAddress commmand
       }
     }
   }
