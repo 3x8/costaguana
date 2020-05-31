@@ -60,6 +60,15 @@ void bootloaderFlashRead(uint8_t*  data , uint32_t address , int length) {
   }
 }
 
+bool bootloaderReadyToJump() {
+  if (fourWayCmdInvalid > 100) {
+    return(true);
+  } else {
+    return(false);
+  }
+
+}
+
 void bootloaderJumpToApplication() {
   uint32_t JumpAddress;
   pFunction JumpToApplication;

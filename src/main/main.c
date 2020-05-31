@@ -1,8 +1,5 @@
 #include "main.h"
 
-extern uint16_t fourWayCmdInvalid;
-
-
 int main(void) {
   // init
   systemClockConfig();
@@ -13,7 +10,7 @@ int main(void) {
 
   while (true) {
     fourWayGetBuffer();
-    if (fourWayCmdInvalid > 100) {
+    if (bootloaderReadyToJump()) {
       LED_ON(LED_RED);
       bootloaderJumpToApplication();
     }
