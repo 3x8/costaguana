@@ -10,7 +10,7 @@ int main(void) {
 
   while (true) {
     fourWayGetBuffer();
-    if (bootloaderReadyToJump()) {
+    if (fourWayReadyToJump()) {
       LED_ON(LED_RED);
       bootloaderJumpToApplication();
     }

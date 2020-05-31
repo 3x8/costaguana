@@ -241,3 +241,12 @@ void fourWayPutBuffer(uint8_t *data, int cmdLength) {
   }
   //fourWayPutChar(10);     // for new line
 }
+
+bool fourWayReadyToJump() {
+  if (fourWayCmdInvalid > 100) {
+    return(true);
+  } else {
+    return(false);
+  }
+
+}
