@@ -19,6 +19,7 @@ SPEED_OPTIMISED_SRC := $(SPEED_OPTIMISED_SRC) \
                     main.c \
                     bootloader/bootloader.c \
                     system/system.c \
+                    system/fourWay.c \
                     system/led.c
 
 SIZE_OPTIMISED_SRC  := $(SIZE_OPTIMISED_SRC) \

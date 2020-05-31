@@ -59,3 +59,15 @@ void bootloaderFlashRead(uint8_t*  data , uint32_t address , int length) {
     data[i] = *(uint8_t*)(address + i);
   }
 }
+
+void bootloaderJumpToApplication() {
+  uint32_t JumpAddress;
+  pFunction JumpToApplication;
+
+  __disable_irq();
+  JumpAddress = *(__IO uint32_t*)(APPLICATION_ADDRESS + 4);
+
+  JumpToApplication = (pFunction) JumpAddress;
+  __set_MSP(*(__IO uint32_t*) APPLICATION_ADDRESS);
+  JumpToApplication();
+}
