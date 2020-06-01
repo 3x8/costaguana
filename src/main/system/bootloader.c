@@ -45,7 +45,7 @@ void bootloaderFlashWrite(uint8_t *data, int length, uint32_t address) {
     if ((FLASH->SR & FLASH_SR_EOP) != 0) {
       FLASH->SR = FLASH_SR_EOP;
     } else {
-    // error
+      // error
     }
     FLASH->CR &= ~FLASH_CR_PG;
     writeCounter += 2;
