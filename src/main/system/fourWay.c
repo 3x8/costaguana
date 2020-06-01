@@ -227,7 +227,7 @@ void fourWayGetBuffer() {
     } else {
       fourWayRxBuffer[i] = fourWayRxByte;
       if (i == 257) {
-        fourWayCmdInvalid += 20;       // needs one hundred to trigger a jumpi but will be reset on next set cmdAddress commmand
+        fourWayCmdInvalid += 20;       // needs one hundred to trigger a jump but will be reset on next set cmdAddress commmand
       }
     }
   }
