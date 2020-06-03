@@ -1,4 +1,7 @@
 # costaguana
 ![quad](icon.png)
 
-***BLDC ESC bootloader firmware (GPLv3.0)***
+***bootloader firmware (GPLv3.0)***
+
+**features:**
+  * serial 1wire passthrough 4way interface 
