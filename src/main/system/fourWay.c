@@ -118,7 +118,7 @@ void fourWayDecodeInput() {
 
   if (fourWayRxBuffer[0] == CMD_KEEP_ALIVE) {
     cmdLength = 2;
-    if (fourWayCrcCompare((uint8_t*)fourWayRxBuffer,cmdLength)){
+    if (fourWayCrcCompare((uint8_t*)fourWayRxBuffer,cmdLength)) {
       //ToDo Nack
       fourWayPutChar(CMD_ACK_KO);
     }
@@ -171,9 +171,9 @@ void fourWayGetChar() {
     // wait for rx to go high
   }
 
-  while ((INPUT_GPIO->IDR & INPUT_PIN)){
+  while ((INPUT_GPIO->IDR & INPUT_PIN)) {
     // wait for rx to go low
-    if (TIM2->CNT > 250 && fourWayCharReceived){
+    if (TIM2->CNT > 250 && fourWayCharReceived) {
       return;
     }
   }
@@ -235,7 +235,7 @@ void fourWayGetBuffer() {
 }
 
 void fourWayPutBuffer(uint8_t *data, int cmdLength) {
-  for (int i = 0; i < cmdLength; i++){
+  for (int i = 0; i < cmdLength; i++) {
     fourWayPutChar(data[i]);
     delayMicroseconds(FOUR_WAY_BIT_TIME);
   }
