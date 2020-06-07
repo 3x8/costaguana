@@ -1,15 +1,15 @@
 #include "bootloader.h"
 
 void bootloaderFlashWrite(uint8_t *data, int length, uint32_t address) {
-  uint16_t dataFlashBuffer[length / 2];
-  memset(dataFlashBuffer, 0, length / 2);
+  volatile uint32_t dataFlashLength = length / 2;
+  uint16_t dataFlashBuffer[dataFlashLength];
+  memset(dataFlashBuffer, 0, dataFlashLength);
 
-  for (int i = 0; i < length / 2 ; i ++ ) {
+  for (int i = 0; i < dataFlashLength ; i ++ ) {
     dataFlashBuffer[i] =  data[i*2+1] << 8 | data[i*2];   // make 16 bit
   }
 
   // unlock flash
-  volatile uint32_t dataFlashLength = length / 2;
   while ((FLASH->SR & FLASH_SR_BSY) != 0) {
     // wait
   }
