@@ -28,7 +28,7 @@ void fourWayCrcCalculate(uint8_t* pBuffer, uint16_t length) {
   for (int i = 0; i < length; i++) {
     uint8_t xb = pBuffer[i];
     for (uint8_t j = 0; j < 8; j++) {
-      if (((xb & 0x01) ^ (cmdCrc16.word & 0x0001)) !=0 ) {
+      if (((xb & 0x01) ^ (cmdCrc16.word & 0x0001)) != 0 ) {
         cmdCrc16.word = cmdCrc16.word >> 1;
         cmdCrc16.word = cmdCrc16.word ^ 0xA001;
       } else {
@@ -41,7 +41,7 @@ void fourWayCrcCalculate(uint8_t* pBuffer, uint16_t length) {
 
 bool fourWayCrcCompare(uint8_t* pBuffer, uint16_t length) {
   fourWayCrcCalculate(pBuffer,length);
-  if ((cmdCrc16.bytes[0] == pBuffer[length])  && (cmdCrc16.bytes[1] == pBuffer[length+1])) {
+  if ((cmdCrc16.bytes[0] == pBuffer[length])  && (cmdCrc16.bytes[1] == pBuffer[length + 1])) {
     return (true);
   } else {
     return (false);
@@ -154,7 +154,7 @@ void fourWayDecodeInput() {
       dataBuffer[dataBufferSize] = cmdCrc16.bytes[0];
       dataBuffer[dataBufferSize + 1] = cmdCrc16.bytes[1];
       dataBuffer[dataBufferSize + 2] = CMD_ACK_OK;
-      fourWayPutBuffer(dataBuffer, dataBufferSize+3);
+      fourWayPutBuffer(dataBuffer, dataBufferSize + 3);
     }
     return;
   }
