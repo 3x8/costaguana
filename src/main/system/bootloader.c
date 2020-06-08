@@ -1,12 +1,12 @@
 #include "bootloader.h"
 
 void bootloaderFlashWrite(uint8_t *data, int length, uint32_t address) {
-  volatile uint32_t dataFlashLength = length / 2;
+  const uint32_t dataFlashLength = length / 2;
   uint16_t dataFlashBuffer[dataFlashLength];
   memset(dataFlashBuffer, 0, dataFlashLength);
 
   for (int i = 0; i < dataFlashLength ; i ++ ) {
-    dataFlashBuffer[i] =  data[i*2+1] << 8 | data[i*2];   // make 16 bit
+    dataFlashBuffer[i] =  data[i*2 + 1] << 8 | data[i*2];   // make 16 bit
   }
 
   // unlock flash
@@ -20,14 +20,14 @@ void bootloaderFlashWrite(uint8_t *data, int length, uint32_t address) {
   }
 
   // erase page if address even divisable by 1024
-  if ((address % 1024) == 0){
+  if ((address % 1024) == 0) {
     FLASH->CR |= FLASH_CR_PER;
     FLASH->AR = address;
     FLASH->CR |= FLASH_CR_STRT;
-    while ((FLASH->SR & FLASH_SR_BSY) != 0){
+    while ((FLASH->SR & FLASH_SR_BSY) != 0) {
       // wait
     }
-    if ((FLASH->SR & FLASH_SR_EOP) != 0){
+    if ((FLASH->SR & FLASH_SR_EOP) != 0) {
       FLASH->SR = FLASH_SR_EOP;
     } else {
       // error
