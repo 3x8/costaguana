@@ -21,7 +21,8 @@ INCLUDE_DIRS    := $(INCLUDE_DIRS) \
                    $(CMSIS_DIR)/Include \
                    $(CMSIS_DIR)/Device/ST/STM32F0xx/Include
 
-LD_SCRIPT       = $(LINKER_DIR)/stm32_flash_f0xx_$(FLASH_SIZE)k.ld
+#LD_SCRIPT       = $(LINKER_DIR)/stm32_flash_f0xx_$(FLASH_SIZE)k.ld
+LD_SCRIPT       = $(LINKER_DIR)/STM32F031C6_FLASH.ld
 ARCH_FLAGS      = -mthumb -mcpu=cortex-m0
 
 DEVICE_FLAGS   += -DUSE_FULL_LL_DRIVER
