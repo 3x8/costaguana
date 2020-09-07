@@ -30,7 +30,7 @@ MCU_SRC        := target/system_stm32f0xx.c
 
 ifneq ($(DEBUG),GDB)
 OPTIMISE_DEFAULT    := -Os
-OPTIMISE_SPEED      := -Os
+OPTIMISE_SPEED      := -Ofast
 OPTIMISE_SIZE       := -Os
 
 LTO_FLAGS           := $(OPTIMISATION_BASE) $(OPTIMISE_DEFAULT)

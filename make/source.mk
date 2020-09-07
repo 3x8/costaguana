@@ -15,15 +15,15 @@ COMMON_SRC           = \
 VPATH               := $(VPATH):$(SRC_DIR)
 
 SPEED_OPTIMISED_SRC := $(SPEED_OPTIMISED_SRC) \
-                    $(TARGET_DIR_SRC)\
+                    $(TARGET_DIR_SRC) 
+
+SIZE_OPTIMISED_SRC  := $(SIZE_OPTIMISED_SRC) \
+                    $(TARGET_DIR_SRC) \
                     main.c \
                     system/bootloader.c \
                     system/system.c \
                     system/fourWay.c \
                     system/led.c
-
-SIZE_OPTIMISED_SRC  := $(SIZE_OPTIMISED_SRC) \
-                    $(TARGET_DIR_SRC)
 
 # check if target.mk supplied
 SRC                 := $(STARTUP_DIR)/$(STARTUP_SRC) $(COMMON_SRC) $(SPEED_OPTIMISED_SRC) $(SIZE_OPTIMISED_SRC) $(MCU_SRC) $(CMSIS_SRC) $(DRIVER_SRC)
