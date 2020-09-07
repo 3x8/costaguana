@@ -1,5 +1,7 @@
 #include "fourWay.h"
 
+uint32_t debug[13];
+
 uint8_t deviceInfo[8] = {0x34,0x37,0x31,0x64,0x1f,0x06,0x06,0x01};  // stm32 device id
 //uint8_t deviceInfo[8] = {0x34,0x37,0x31,0x64,0xf3,0x90,0x06,0x01};  // silabs device id
 //uint8_t deviceInfo[8] = {0x34,0x37,0x31,0x64,0xe8,0xb2,0x06,0x01};  // blheli_s id
@@ -62,6 +64,21 @@ void fourWayPutDeviceInfo() {
 }
 
 void fourWayDecodeInput() {
+
+  // debug
+  debug[0] = INPUT_GPIO->MODER;
+  debug[1] = INPUT_GPIO->OTYPER;
+  debug[2] = INPUT_GPIO->OSPEEDR;
+  debug[3] = INPUT_GPIO->PUPDR;
+  debug[4] = INPUT_GPIO->IDR;
+  debug[5] = INPUT_GPIO->ODR;
+  debug[6] = INPUT_GPIO->BSRR;
+  debug[7] = INPUT_GPIO->LCKR;
+  debug[8] = INPUT_GPIO->AFR[0];
+  debug[9] = INPUT_GPIO->AFR[1];
+  debug[10] = INPUT_GPIO->BRR;
+
+
   if (fourWayPayloadIncoming) {
     //debug
     fourWayPayloadIncoming = false;
