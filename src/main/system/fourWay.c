@@ -200,7 +200,7 @@ void fourWayGetChar() {
   uint8_t bitIndex = 0;
   while (bitIndex < 8) {
     delayMicroseconds(FOUR_WAY_BIT_TIME);
-    fourWayRxByte = fourWayRxByte | ((( INPUT_GPIO->IDR & INPUT_PIN)) >> FOUR_WAY_SHIFT_AMOUNT) << bitIndex;
+    fourWayRxByte = fourWayRxByte | ((((INPUT_GPIO->IDR & INPUT_PIN) != 0) ? 0x1:0x0) << bitIndex);
     bitIndex++;
   }
   // wait till the stop bit time begins
