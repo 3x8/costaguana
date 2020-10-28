@@ -167,7 +167,11 @@ void fourWayGetChar() {
   fourWayRxByte=0;
 
   while (!(INPUT_GPIO->IDR & INPUT_PIN)) {
-    // wait for rx to go high
+    // wait for rx to go high 200ms then jump to nostromo
+    if (TIM2->CNT > 200000) {
+      fourWayCmdInvalid = 101;
+      return;
+    }
   }
 
   while ((INPUT_GPIO->IDR & INPUT_PIN)) {
